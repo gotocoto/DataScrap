@@ -25,7 +25,7 @@ month = 1
 sum = 0
 search = "climate"
 websites = []
-while month <= 1:
+while month <= 4:
     print(f'Scanning month: {month}')
     index = 1
     while(True):
