@@ -1,0 +1,4 @@
+
+CREATE TABLE article(id text PRIMARY KEY, url text not null, title text,author text, date text,key text,search text, t TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE user(id text PRIMARY KEY,user_name text,received_ranked_up text,total text);
+CREATE TABLE comment(article text, root_comment text, parent_id text, depth integer,id text,user_id text, time integer, replies_count integer, ranks_up integer, ranks_down integer,rank_score integer,content text,user_reputation integer,best_score integer, PRIMARY KEY(id), FOREIGN KEY (article) REFERENCES article(id) ON DELETE CASCADE ON UPDATE CASCADE);
