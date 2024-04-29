@@ -9,11 +9,30 @@ import json
 import time
 import logging
 #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+'''
 logging.basicConfig(
     filename='scrapurl.log',  # Specify the filename for the log file
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.DEBUG  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-)
+)'''
+logger = logging.getLogger('my_logger')
+logger.setLevel(logging.DEBUG)
+
+# Create a formatter
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+# Create a StreamHandler for console output (stdout)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(formatter)
+# Create a FileHandler for file output
+file_handler = logging.FileHandler('scrapurl.log')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+# Add the handlers to the logger
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
 success_time = []
 error_time = []
 def to_comment(chat,entry):
@@ -35,10 +54,10 @@ def to_comment(chat,entry):
                 entry['best_score']
             ]
         except KeyError as e:
-            logging.debug(f"KeyError in to_comment: {e}")
+            logger.debug(f"KeyError in to_comment: {e}")
             return None
         except IndexError as e:
-            logging.debug(f"IndexError in to_comment: {e}")
+            logger.debug(f"IndexError in to_comment: {e}")
             return None
 def get_replies(chat,ids,comment):
         replies = []
@@ -54,13 +73,13 @@ def get_replies(chat,ids,comment):
                 if reply_data:
                     replies += reply_data
         except KeyError as e:
-            logging.debug(f"KeyError in get_replies: {e}")
+            logger.debug(f"KeyError in get_replies: {e}")
         except Exception as e:
-            logging.debug(f"Unhandled exception in get_replies: {e}")
+            logger.debug(f"Unhandled exception in get_replies: {e}")
 
         return replies
 async def make_request(url, headers, json_data, request_count):
-    logging.info(request_count)
+    logger.debug(request_count)
     #start_time = time.time()
 
     try:
@@ -73,15 +92,15 @@ async def make_request(url, headers, json_data, request_count):
                     #success_time.append(elapsed_time)
                     return await response.json()
                 elif response.status == 104:
-                    logging.debug("Connection reset by peer. Waiting for a second before retrying...")
+                    logger.debug("Connection reset by peer. Waiting for a second before retrying...")
                     await asyncio.sleep(1)
                     return await make_request(url, headers, json_data, request_count)  # Retry
                 else:
-                    logging.debug(f"Error in request. Status code: {response.status}")
+                    logger.debug(f"Error in request. Status code: {response.status}")
                     return None
 
     except Exception as e:
-        logging.debug(f"Error making request: {e}")
+        logger.debug(f"Error making request: {e}")
         #end_time = time.time()
         #elapsed_time = end_time - start_time
         #error_time.append(elapsed_time)
@@ -104,7 +123,7 @@ async def async_get(url, timeout=5,sleep =1):
 async def scrape_url(url,semaphore,search = ""):
     async with semaphore:
         chat = {}
-        logging.info(f"Scrapping url: %s" % url)
+        logger.info(f"Scrapping url: %s" % url)
         try:
             html = await async_get(url)
             if html:
@@ -114,9 +133,9 @@ async def scrape_url(url,semaphore,search = ""):
                 author = soup.head.find(attrs={"name": "dc.creator"})['content']
                 date = soup.head.find(attrs={"name": "dc.date"})['content']
             else:
-                logging.debug("NO HTML!!")
+                logger.debug("NO HTML!!")
         except Exception as e:
-            logging.debug(f"Error occurred while scraping {url}: {e}")
+            logger.debug(f"Error occurred while scraping {url}: {e}")
         headers = {
         'User-Agent': '',
         'x-spot-id': 'sp_ANQXRpqH',
@@ -140,7 +159,7 @@ async def scrape_url(url,semaphore,search = ""):
 
             if response_json:
                 chat = response_json['conversation']
-                logging.info(f"'messages_count': {chat['messages_count']}\n'replies_count': {chat['replies_count']}\n'comments_count': {chat['comments_count']}")
+                logger.info(f"'messages_count': {chat['messages_count']}\n'replies_count': {chat['replies_count']}\n'comments_count': {chat['comments_count']}")
 
                 has_next = chat['has_next']
                 offset = chat['offset']
@@ -161,14 +180,14 @@ async def scrape_url(url,semaphore,search = ""):
                         chat['comments'].extend(new_chat['comments'])
                         chat['users'].update(new_chat['users'])
                     else:
-                        logging.debug("Error in inner request.")
+                        logger.debug("Error in inner request.")
                         break
 
         except KeyboardInterrupt:
-            logging.debug("Process interrupted.")
+            logger.debug("Process interrupted.")
         except Exception as e:
-            logging.debug("Unhandled exception in scrape url: "+str(e))
-            logging.debug(e)
+            logger.debug("Unhandled exception in scrape url: "+str(e))
+            logger.debug(e)
         #print(response_json)
         #print("{" + "\n".join("{!r}: {!r},".format(k, v) for k, v in data.items()) + "}")
         #the 'demopage.asp' prints all HTTP Headers
@@ -203,7 +222,7 @@ async def scrape_url(url,semaphore,search = ""):
         cur.executemany("INSERT OR REPLACE INTO comment (article, root_comment, parent_id, depth, id, user_id, time, replies_count, ranks_up, ranks_down, rank_score, content, user_reputation, best_score) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);",comments)
 
         connection.commit()
-        logging.info(f'Comments added: %d' % len(comments)) 
+        logger.info(f'Comments added: %d' % len(comments)) 
         connection.close()
 
 async def scrape_urls(urls):
@@ -231,7 +250,7 @@ profiler.disable()
 stats = StringIO()
 stats_print = pstats.Stats(profiler, stream=stats).sort_stats('cumulative')
 stats_print.print_stats()
-logging.info(stats.getvalue())
+logger.info(stats.getvalue())
 
 import statistics
 def array_summary_statistics(data):
