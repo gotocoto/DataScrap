@@ -3,6 +3,10 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import json
+import asyncio
+import aiohttp
+import json
+import time
 success_time = []
 error_time = []
 def to_comment(chat,entry):
@@ -48,54 +52,58 @@ def get_replies(chat,ids,comment):
             print(f"Unhandled exception in get_replies: {e}")
 
         return replies
-def make_request(url, headers, json_data,request_count):
-        print(request_count)
-        start_time = time.time()
-        try:
-            response = requests.post(url, headers=headers, json=json_data,timeout =0.8)
-            response.raise_for_status()
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            if response.status_code == 200:
-                success_time.append(elapsed_time)
-                return json.loads(response.text)
-            elif response.status_code == 104:
-                print("Connection reset by peer. Waiting for a second before retrying...")
-                time.sleep(1)
-                return make_request(url, headers, json_data,request_count)  # Retry
-            else:
-                print(f"Error in request. Status code: {response.status_code}")
-                return None
+async def make_request(url, headers, json_data, request_count):
+    print(request_count)
+    #start_time = time.time()
 
-        except requests.exceptions.RequestException as e:
-            print(f"Error making request: {e}")
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            error_time.append(elapsed_time)
-            #CAN RUN INTO INFINITE LOOOP FIX LATER
-            return make_request(url, headers, json_data,request_count) 
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
-            return None
-def scrape_url(url, search = ""):
-    chat = {}
-    print(f"Scrapping url: %s" % url)
-    page = requests.Response
-    #WILL BREAK IF STOP RESPONDING FROM SERVER
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=json_data, timeout=0.8) as response:
+                #end_time = time.time()
+                #elapsed_time = end_time - start_time
+
+                if response.status == 200:
+                    #success_time.append(elapsed_time)
+                    return await response.json()
+                elif response.status == 104:
+                    print("Connection reset by peer. Waiting for a second before retrying...")
+                    await asyncio.sleep(1)
+                    return await make_request(url, headers, json_data, request_count)  # Retry
+                else:
+                    print(f"Error in request. Status code: {response.status}")
+                    return None
+
+    except Exception as e:
+        print(f"Error making request: {e}")
+        #end_time = time.time()
+        #elapsed_time = end_time - start_time
+        #error_time.append(elapsed_time)
+        # Potential infinite loop fix later (e.g., with retries limit)
+        return await make_request(url, headers, json_data, request_count)
+async def async_get(url, timeout=5):
     for _ in range(5):
         try:
-            page = requests.get(url, timeout = 5)
-            break
-        except TimeoutError:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=timeout) as response:
+                    return await response.text()
+        except asyncio.TimeoutError:
             pass
 
-     #timeout only if required
-    soup = BeautifulSoup(page.text, 'html.parser') 
-    address_key = soup.head.findAll(attrs={"name": "dc.identifier"})[0].attrs['content']
-    title = soup.head.findAll(attrs={"name": "dc.title"})[0].attrs['content']
-    author = soup.head.findAll(attrs={"name": "dc.creator"})[0].attrs['content']
-    date = soup.head.findAll(attrs={"name": "dc.date"})[0].attrs['content']
 
+async def scrape_url(url,search = ""):
+    chat = {}
+    print(f"Scrapping url: %s" % url)
+    try:
+        html = await async_get(url)
+        if html:
+            soup = BeautifulSoup(html, 'html.parser')
+            address_key = soup.head.find(attrs={"name": "dc.identifier"})['content']
+            title = soup.head.find(attrs={"name": "dc.title"})['content']
+            author = soup.head.find(attrs={"name": "dc.creator"})['content']
+            date = soup.head.find(attrs={"name": "dc.date"})['content']
+            
+    except Exception as e:
+        print(f"Error occurred while scraping {url}: {e}")
     headers = {
     'User-Agent': '',
     'x-spot-id': 'sp_ANQXRpqH',
@@ -113,39 +121,41 @@ def scrape_url(url, search = ""):
     url = 'https://api-2-0.spot.im/v1.0.0/conversation/read'
 
     try:
+        # Make the initial request
         request_count = 1
-        response_json = make_request(url, headers, json_data,request_count)
+        response_json = await make_request(url, headers, json_data, request_count)
 
         if response_json:
             chat = response_json['conversation']
-            print("'messages_count': {}\n'replies_count': {}\n'comments_count': {}".format(chat['messages_count'], chat['replies_count'], chat['comments_count']))
-            comments = chat['comments']
+            print(f"'messages_count': {chat['messages_count']}\n'replies_count': {chat['replies_count']}\n'comments_count': {chat['comments_count']}")
+
             has_next = chat['has_next']
             offset = chat['offset']
             i = 0
 
+            # Continue making requests until there are no more next pages
             while has_next:
                 i += 1
                 json_data['offset'] = offset
-                request_count+=1
-                response_json = make_request(url, headers, json_data,request_count)
+                request_count += 1
+                response_json = await make_request(url, headers, json_data, request_count)
 
                 if response_json:
                     new_chat = response_json['conversation']
                     has_next = new_chat['has_next']
                     offset = new_chat['offset']
-                    new_comments = chat['comments']
 
                     chat['comments'].extend(new_chat['comments'])
                     chat['users'].update(new_chat['users'])
                 else:
                     print("Error in inner request.")
-                    break  # Stop retrying on inner request error
+                    break
 
     except KeyboardInterrupt:
         print("Process interrupted.")
     except Exception as e:
-        print(f"Unhandled exception: {e}")
+        print(f"Unhandled exception in scrape url: {e}")
+        print(e)
     #print(response_json)
     #print("{" + "\n".join("{!r}: {!r},".format(k, v) for k, v in data.items()) + "}")
     #the 'demopage.asp' prints all HTTP Headers
@@ -182,6 +192,16 @@ def scrape_url(url, search = ""):
     connection.commit()
     print(f'Comments added: %d' % len(comments)) 
     connection.close()
+
+async def scrape_urls(urls):
+    success_times = []
+    error_times = []
+    tasks= []
+    for idx, url in enumerate(urls):
+        task = scrape_url(url)
+        tasks.append(task)
+    results = await asyncio.gather(*tasks)
+
 # Example usage:
 import cProfile
 import pstats
@@ -191,8 +211,7 @@ urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fi
 profiler = cProfile.Profile()
 profiler.enable()
 
-for url in urls[:10]:
-    scrape_url(url)
+asyncio.run(scrape_urls(urls))
 
 profiler.disable()
 
@@ -226,7 +245,7 @@ def array_summary_statistics(data):
     }
 
     return summary_stats
-
+'''
 # Example usage:
 input_data = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 result = array_summary_statistics(input_data)
@@ -239,3 +258,4 @@ for stat, value in array_summary_statistics(success_time).items():
 print("Error_time:")
 for stat, value in array_summary_statistics(error_time).items():
     print(f"{stat}: {value}")
+    '''
