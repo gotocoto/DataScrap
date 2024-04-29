@@ -88,6 +88,9 @@ async def async_get(url, timeout=5):
                     return await response.text()
         except asyncio.TimeoutError:
             pass
+    await asyncio.sleep(1)
+    #POTENTIAL TO BE AN INFINITE LOOP
+    return async_get(url)
 
 
 async def scrape_url(url,search = ""):
@@ -101,9 +104,12 @@ async def scrape_url(url,search = ""):
             title = soup.head.find(attrs={"name": "dc.title"})['content']
             author = soup.head.find(attrs={"name": "dc.creator"})['content']
             date = soup.head.find(attrs={"name": "dc.date"})['content']
-            
+        else:
+            print("NO HTML!!")
     except Exception as e:
         print(f"Error occurred while scraping {url}: {e}")
+    if not address_key:
+        print("NOOO ADDRESS KEY")
     headers = {
     'User-Agent': '',
     'x-spot-id': 'sp_ANQXRpqH',
