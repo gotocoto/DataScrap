@@ -21,9 +21,27 @@ def parse_sitemap(url):
                 response.raise_for_status()
                 print(sitemap_url)
                 subroot = ET.fromstring(response.content)
-                for loc_elem in subroot.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc'):
-                    news_article = loc_elem.text.strip()
-                    urls.append(news_article)
+                iterator = subroot.iter()
+                iterator.__next__()
+                while True:
+                    try:
+                        # Retrieve the next item
+                        iterator.__next__()
+                        news_article_url = iterator.__next__().text
+                        last_mod = iterator.__next__().text
+                        changefreq = iterator.__next__().text
+                        priority = iterator.__next__().text
+                        urls.append((news_article_url,last_mod))
+                    except StopIteration:
+                        break
+                '''
+                else:
+                    # The loop's code block goes here...
+                    print(item)
+                for loc_elem in subroot.iterfind('url'):
+                    news_article_url = loc_elem.text
+                    urls.append(news_article_url)'''
+            break
         return urls
 
     except requests.exceptions.RequestException as e:

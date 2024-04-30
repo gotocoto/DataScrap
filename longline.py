@@ -1,24 +1,24 @@
-def find_longest_line(log_file):
-    max_length = 0
-    longest_line = ""
+def print_longest_lines(log_file_path):
+    # Open the log file in read mode
+    try:
+        with open(log_file_path, 'r') as log_file:
+            lines = log_file.readlines()
 
-    with open(log_file, 'r') as file:
-        for line in file:
-            line = line.rstrip('\n')  # Remove newline characters
-            line_length = len(line)
-            
-            if line_length > max_length:
-                max_length = line_length
-                longest_line = line
+            # Sort lines based on their length in descending order
+            lines_sorted_by_length = sorted(lines, key=len, reverse=True)
 
-    return longest_line, max_length
+            # Print the 5 longest lines and their character counts
+            print("Top 5 Longest URLS")
+            for i in range(min(5, len(lines_sorted_by_length))):
+                line = lines_sorted_by_length[i]
+                line_length = len(line.rstrip('\n'))  # Calculate character count
+                print(f"Line {i + 1}: Length={line_length} - {line.rstrip()}")
+
+    except FileNotFoundError:
+        print(f"Error: Log file '{log_file_path}' not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 # Example usage:
-log_file_path = 'sitemap_parser.log'  # Specify the path to your log file
-longest_line, max_length = find_longest_line(log_file_path)
-
-if longest_line:
-    print(f"The longest line is: '{longest_line}'")
-    print(f"It has {max_length} characters.")
-else:
-    print("No lines found in the log file.")
+log_file_path = 'sitemap_parser.log'
+print_longest_lines(log_file_path)
