@@ -9,3 +9,5 @@ lol.png
 page.html
 scrapurl.py
 sitemap_parser.log
+myenv/
+db_config.json
