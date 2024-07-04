@@ -7,20 +7,23 @@
 | Column  | Data Type      | Constraints                   | Description                                   |
 |---------|----------------|-------------------------------|-----------------------------------------------|
 | URL     | VARCHAR(230)   | PRIMARY KEY                   | URL to the article                            |
+| Category| VARCHAR(30)    |                               | Category of the aricle                        |
 | LastMod | TIMESTAMP      | NOT NULL                      | Last time article edited by news website      |
 | Scraped | TIMESTAMP      | DEFAULT NULL                  | Time when the article was last scrapped       |
 | Title   | VARCHAR(255)   |                               | Title of the article                          |
 | Author  | VARCHAR(30)    |                               | Author of the article                         |
-| Category| VARCHAR(30)    |                               | Category of the aricle                        |
+
 
 ```sql
 CREATE TABLE Articles (
     URL VARCHAR(230) PRIMARY KEY,
+    Category VARCHAR(20),
     LastMod TIMESTAMP NOT NULL,
     Scraped TIMESTAMP DEFAULT NULL,
     Title VARCHAR(255),
     Author VARCHAR(30),
-    Category VARCHAR(20),
+    
+    
 );
 ```
 ## User
