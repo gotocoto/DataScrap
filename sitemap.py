@@ -17,12 +17,14 @@ def parse_sitemap(url):
 
             # Check if the URL points to a nested sitemap
             if 'type=articles' in sitemap_url:
-                response = requests.get(sitemap_url)
+                logging.info(f"Checking {sitemap_url}")
+                response = requests.get(sitemap_url, timeout=5)
                 response.raise_for_status()
                 print(sitemap_url)
                 subroot = ET.fromstring(response.content)
                 iterator = subroot.iter()
                 iterator.__next__()
+                news_article_url = ""
                 while True:
                     try:
                         # Retrieve the next item
@@ -31,17 +33,22 @@ def parse_sitemap(url):
                         last_mod = iterator.__next__().text
                         changefreq = iterator.__next__().text
                         priority = iterator.__next__().text
-                        urls.append((news_article_url,last_mod))
+                        newsType,sep,name = news_article_url[24:].partition('/')
+                        urls.append((news_article_url,newsType,last_mod))
                     except StopIteration:
                         break
+                    except IndexError:
+                        logging.error(f"Error parsing url to get news type for {news_article_url}")
                 '''
                 else:
                     # The loop's code block goes here...
                     print(item)
                 for loc_elem in subroot.iterfind('url'):
-                    news_article_url = loc_elem.text
+                    news_article_u+
+                    rl = loc_elem.text
                     urls.append(news_article_url)'''
-            break
+            print(urls)
+            urls = []
         return urls
 
     except requests.exceptions.RequestException as e:
