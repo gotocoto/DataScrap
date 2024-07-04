@@ -64,8 +64,13 @@ if __name__ == "__main__":
         config = json.load(config_file)
 
     # Insert Statement
-    insert_st = "INSERT OR REPLACE INTO Articles (URL, Category, LastMod, Title, Author) VALUES (?,?,?,NULL,NULL)"
-    # Connect to MySQL database
+    insert_st = """
+	INSERT INTO Articles (URL, Category, LastMod, Title, Author) 
+	VALUES (%s, %s, %s, NULL, NULL) 
+	ON DUPLICATE KEY UPDATE 
+	Category=VALUES(Category), LastMod=VALUES(LastMod)
+	"""
+     # Connect to MySQL database
     try:
         connection = mysql.connector.connect(
             host=config['host'],
