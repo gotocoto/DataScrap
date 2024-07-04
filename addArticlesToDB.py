@@ -64,7 +64,7 @@ if __name__ == "__main__":
         config = json.load(config_file)
 
     # Insert Statement
-    insert_st = "INSERT OR REPLACE INTO Articles (URL, Category, LastMod) VALUES (?,?,?)"
+    insert_st = "INSERT OR REPLACE INTO Articles (URL, Category, LastMod, Title, Author) VALUES (?,?,?,NULL,NULL)"
     # Connect to MySQL database
     try:
         connection = mysql.connector.connect(

@@ -20,8 +20,8 @@ CREATE TABLE Articles (
     Category VARCHAR(20),
     LastMod TIMESTAMP NOT NULL,
     Scraped TIMESTAMP DEFAULT NULL,
-    Title VARCHAR(255),
-    Author VARCHAR(30)
+    Title VARCHAR(255) DEFAULT NULL,
+    Author VARCHAR(30) DEFAULT NULL
 );
 ```
 ## User
