@@ -21,9 +21,7 @@ CREATE TABLE Articles (
     LastMod TIMESTAMP NOT NULL,
     Scraped TIMESTAMP DEFAULT NULL,
     Title VARCHAR(255),
-    Author VARCHAR(30),
-    
-    
+    Author VARCHAR(30)
 );
 ```
 ## User
