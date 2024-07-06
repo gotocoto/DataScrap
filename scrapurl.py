@@ -10,6 +10,12 @@ import logging
 import mysql.connector
 import traceback
 from datetime import datetime
+import os
+log_file_path = 'scrapurl.log'
+if os.path.exists(log_file_path):
+    # Delete the log file
+    os.remove(log_file_path)
+    print(f"Deleted existing log file: {log_file_path}")
 #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 '''
 logging.basicConfig(
@@ -28,7 +34,7 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 # Create a FileHandler for file output
-file_handler = logging.FileHandler('scrapurl.log')
+file_handler = logging.FileHandler(log_file_path)
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(formatter)
 
@@ -47,22 +53,22 @@ def to_comment(chat,entry):
                 print(entry['user_id'][0])
             return [
                 chat['post_id'][21:],
-                entry['root_comment'][-27:],
-                entry['parent_id'][-27:] if entry['parent_id'] else None,
+                entry['root_comment'].rpartition('_')[-1],
+                entry['parent_id'].rpartition('_')[-1] if entry['parent_id'] else None,
                 entry['depth'],
-                entry['id'][-27:],
+                entry['id'].rpartition('_')[-1],
                 entry['user_id'],
                 datetime.fromtimestamp(entry['time']),
                 entry['replies_count'],
                 entry['rank'].get('ranks_up', 0),
                 entry['rank'].get('ranks_down', 0),
                 entry['rank_score'],
-                entry['content'][-1]['text'],
+                entry['content'][0]['text'],
                 entry['user_reputation'],
                 entry['best_score']
             ]
         except KeyError as e:
-            logger.debug(f"KeyError in to_comment: {e}")
+            logger.debug(f"KeyError in to_comment: {e} \n{entry['content']}")
             return None
         except IndexError as e:
             logger.debug(f"IndexError in to_comment: {e}")
@@ -174,7 +180,7 @@ async def scrape_url(url,semaphore,search = ""):
 
             if response_json:
                 chat = response_json['conversation']
-                logger.info(f"'messages_count': {chat['messages_count']}\n'replies_count': {chat['replies_count']}\n'comments_count': {chat['comments_count']}")
+                logger.info(f"'messages_count': {chat['messages_count']}\t'replies_count': {chat['replies_count']}\t'comments_count': {chat['comments_count']}")
 
                 has_next = chat['has_next']
                 offset = chat['offset']
@@ -218,16 +224,16 @@ async def scrape_url(url,semaphore,search = ""):
             #print(connection.total_changes)
             cur = connection.cursor()
             connection.start_transaction()
-            article = (url, title, author, address_key[:15], last_mod)  # Ensure address_key is truncated correctly if needed
-            insert_article = """
-                INSERT INTO article (url, title, author, post_id, last_mod)
-                VALUES (%s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                title = VALUES(title),
-                author = VALUES(author),
-                last_mod = VALUES(last_mod);
+            article = ( title, author, address_key[15:], last_mod,url)  # Ensure address_key is truncated correctly if needed
+            update_article = """
+                UPDATE article
+                SET title = %s,
+                    author = %s,
+                    post_id = %s,
+                    last_mod = %s
+                WHERE url = %s;
             """
-            cur.execute(insert_article,article)
+            cur.execute(update_article,article)
             
 
 
@@ -287,9 +293,13 @@ async def scrape_url(url,semaphore,search = ""):
                 user_reputation = VALUES(user_reputation),
                 best_score = VALUES(best_score);
                 """
+            #comment_ids = [comment[4] for comment in comments]
+            cur.executemany(insert_comments,comments)
+            '''
             for comment in comments:
                 #print(comment)
-                cur.execute(insert_comments,comment)
+                logger.debug(f'{comment}')
+                cur.execute(insert_comments,comment)'''
             connection.commit()
             logger.info(f'Comments added: %d' % len(comments)) 
         except mysql.connector.Error as err:
@@ -298,7 +308,7 @@ async def scrape_url(url,semaphore,search = ""):
         finally:
             if connection.is_connected():
                 connection.close()
-                print("Connection closed")
+                logger.info(f'Connection closed for {url[24:]}')
 
 async def scrape_urls(urls):
     success_times = []
@@ -316,12 +326,46 @@ async def scrape_urls(urls):
 
 def main():
     #urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos']
-    urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos', 'https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war', 'https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false']
+    #urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos', 'https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war', 'https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false']
     #urls = ['https://www.foxnews.com/politics/massachusetts-gov-healey-unveils-climate-blueprint-coastal-communities']
-    asyncio.run(scrape_urls(urls))
+    
+    # Establish connection to MySQL
+    count = 1
+    while(True):
+        logger.info(f'{count} iteration of scrapping urls')
+        count+=1
+        connection = mysql.connector.connect(**config)
+
+        # Create a cursor object using the cursor() method
+        cur = connection.cursor()
+
+        # Execute the SQL query
+        query = """
+            SELECT url
+            FROM article
+            WHERE YEAR(last_mod) = 2020
+            AND category = 'politics'
+            AND scraped IS NULL
+            ORDER BY RAND()
+            LIMIT 300;
+        """
+        cur.execute(query)
+
+        # Fetch all the rows using fetchall() method
+
+        urls = [row[0] for row in cur.fetchall()]
+        if(len(urls)==0):
+            break
+        cur.close()
+        connection.close()
+        asyncio.run(scrape_urls(urls))
+        
+        # Close the cursor and connection
+    
+    
 
 # Print the profiling results
-'''
+
 import cProfile
 import pstats
 from io import StringIO
@@ -330,14 +374,13 @@ def speedTest(func):
     profiler.enable()
     func()
     profiler.disable()
-    print(len(urls))
     stats = StringIO()
     stats_print = pstats.Stats(profiler, stream=stats).sort_stats('cumulative')
-    stats_print.print_stats()
-    logger.info(stats.getvalue())'''
+    #stats_print.print_stats()
+    logger.info(stats.getvalue())
 if __name__ == "__main__":
     main()
-    #speedTest(main())
+    #speedTest(main)
 
 
 '''
