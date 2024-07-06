@@ -118,10 +118,10 @@ CREATE TABLE user (
 ```sql
 CREATE TABLE comment (
     post_id CHAR(36),
-    root_comment CHAR(27),
-    parent_id CHAR(27) NULL,
+    root_comment VARCHAR(30),
+    parent_id VARCHAR(30) NULL,
     depth INT UNSIGNED DEFAULT 0,
-    id CHAR(27) PRIMARY KEY,
+    id VARCHAR(30) PRIMARY KEY,
     user_id CHAR(14),
     time DATETIME,
     replies_count INT UNSIGNED DEFAULT 0,
@@ -133,7 +133,7 @@ CREATE TABLE comment (
     best_score INT UNSIGNED DEFAULT 0,
     FOREIGN KEY (post_id) REFERENCES article(post_id) ON DELETE CASCADE ON UPDATE NO ACTION,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT fk_parent_id FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    --CONSTRAINT fk_parent_id FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_root_comment FOREIGN KEY (root_comment) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
