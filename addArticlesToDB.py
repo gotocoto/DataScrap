@@ -65,8 +65,8 @@ if __name__ == "__main__":
 
     # Insert Statement
     insert_st = """
-	INSERT INTO Articles (URL, Category, LastMod, Title, Author) 
-	VALUES (%s, %s, %s, NULL, NULL) 
+	INSERT INTO Articles (url, category, last_mod, title, author,scrapped) 
+	VALUES (%s, %s, %s, NULL, NULL,NULL     ) 
 	ON DUPLICATE KEY UPDATE 
 	Category=VALUES(Category), LastMod=VALUES(LastMod)
 	"""

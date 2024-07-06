@@ -2,7 +2,7 @@
 
 
 
-## Article
+## article
 
 | Column  | Data Type      | Constraints                   | Description                                   |
 |---------|----------------|-------------------------------|-----------------------------------------------|
@@ -12,15 +12,17 @@
 | Scraped | TIMESTAMP      | DEFAULT NULL                  | Time when the article was last scrapped       |
 | Title   | VARCHAR(255)   |                               | Title of the article                          |
 | Author  | VARCHAR(30)    |                               | Author of the article                         |
+| post_id    | VARCHAR(30)    |                               | Author of the article                         |
 
 ```sql
-CREATE TABLE Articles (
-    URL VARCHAR(230) PRIMARY KEY,
-    Category VARCHAR(20),
-    LastMod TIMESTAMP NOT NULL,
-    Scraped TIMESTAMP DEFAULT NULL,
-    Title VARCHAR(255) DEFAULT NULL,
-    Author VARCHAR(30) DEFAULT NULL
+CREATE TABLE article (
+    url VARCHAR(230) PRIMARY KEY,
+    category VARCHAR(30),
+    last_mod TIMESTAMP NOT NULL,
+    scraped TIMESTAMP DEFAULT NULL,
+    title VARCHAR(255) DEFAULT NULL,
+    author VARCHAR(30) DEFAULT NULL,
+    post_id CHAR(36) DEFAULT NULL UNIQUE
 );
 ```
 
@@ -63,77 +65,76 @@ SELECT count(category),Category FROM Articles GROUP BY Category;
 |          237713 | world                  |
 
 ```sql
-SELECT url FROM Articles WHERE YEAR(LastMod)=2020 and Category='politics' ORDER BY LastMod LIMIT 5 FOR UPDATE ;
+SELECT url FROM article WHERE YEAR(last_mod)=2020 and category='politics' ORDER BY last_mod LIMIT 5 FOR UPDATE ;
 ```
 ```sql
-UPDATE Articles
-SET Scrapped=CURDATE(),Title=?,Author=?
-WHERE URL=?;
+UPDATE article
+SET scraped=CURDATE(),title=?,author=?
+WHERE url=?;
 ```
 
 ## User
-```sql
-CREATE TABLE user (
-    id VARCHAR(255) PRIMARY KEY,
-    user_name VARCHAR(255),
-    received_ranked_up VARCHAR(255),
-    total VARCHAR(255)
-);
-```
-
-### Markdown Table Description:
-
 | Column           | Data Type   | Constraints | Description                           |
 |------------------|-------------|-------------|---------------------------------------|
 | id               | VARCHAR(255)| PRIMARY KEY | Unique identifier for the user        |
-| user_name        | VARCHAR(255)|             | Name of the user                      |
-| received_ranked_up| VARCHAR(255)|             | Number of received ranked up points   |
-| total            | VARCHAR(255)|             | Total points or score for the user     |
+| user_name        | VARCHAR(50)|             | Name of the user                      |
+| received_ranked_up| integer|             | Number of received ranked up points   |
+| total            | integer|             | Total points or score for the user     |
 
 ```sql
 CREATE TABLE user (
-    id VARCHAR(255) PRIMARY KEY,
-    user_name VARCHAR(255),
-    received_ranked_up VARCHAR(255),
-    total VARCHAR(255)
+    id CHAR(14) PRIMARY KEY,
+    user_name VARCHAR(50) NOT NULL,
+    received_ranked_up INT UNSIGNED DEFAULT 0,
+    total INT UNSIGNED DEFAULT 0,
+    is_admin TINYINT(1) DEFAULT 0,
+    is_community_moderator TINYINT(1) DEFAULT 0,
+    is_super_admin TINYINT(1) DEFAULT 0,
+    is_journalist TINYINT(1) DEFAULT 0,
+    is_muted TINYINT(1) DEFAULT 0,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 ```
 ## Comment
-| Column Name      | Data Type  | Description                                      |
-|------------------|------------|--------------------------------------------------|
-| article          | VARCHAR(230)| The ID of the related article                    |
-| root_comment     | TEXT       | The ID of the root comment (if applicable)       |
-| parent_id        | TEXT       | The ID of the parent comment (if applicable)     |
-| depth            | INTEGER    | The depth level of the comment in the thread     |
-| id               | TEXT (PK)  | The unique identifier for the comment (Primary Key) |
-| user_id          | TEXT       | The ID of the user who posted the comment        |
-| time             | INTEGER    | The timestamp of when the comment was posted     |
-| replies_count    | INTEGER    | The number of replies to this comment            |
-| ranks_up         | INTEGER    | The number of upvotes for the comment            |
-| ranks_down       | INTEGER    | The number of downvotes for the comment          |
-| rank_score       | INTEGER    | The ranking score of the comment                  |
-| content          | TEXT       | The textual content of the comment               |
-| user_reputation  | INTEGER    | The reputation score of the commenting user      |
-| best_score       | INTEGER    | The best score achieved by the comment           |
+| Column Name   | Data Type      | Nullable | Description                                           |
+|---------------|----------------|----------|-------------------------------------------------------|
+| post_id       | CHAR(36)       | No       | The ID of the related article                         |
+| root_comment  | CHAR(27)       | No       | The ID of the root comment (if applicable)            |
+| parent_id     | CHAR(27)       | Yes      | The ID of the parent comment (if applicable)          |
+| depth         | INTEGER        | No       | The depth level of the comment in the thread          |
+| id            | CHAR(27)       | No       | The unique identifier for the comment (Primary Key)   |
+| user_id       | CHAR(14)       | No       | The ID of the user who posted the comment             |
+| time          | TIMESTAMP      | No       | The timestamp of when the comment was posted          |
+| replies_count | INTEGER        | No       | The number of replies to this comment                 |
+| ranks_up      | INTEGER        | No       | The number of upvotes for the comment                 |
+| ranks_down    | INTEGER        | No       | The number of downvotes for the comment               |
+| rank_score    | INTEGER        | No       | The ranking score of the comment                      |
+| content       | TEXT           | No       | The textual content of the comment                    |
+| user_reputation| INTEGER       | No       | The reputation score of the commenting user           |
+| best_score    | INTEGER        | No       | The best score achieved by the comment                |
+
 
 
 ```sql
 CREATE TABLE comment (
-    article VARCHAR(230),
-    root_comment TEXT,
-    parent_id TEXT,
-    depth INTEGER,
-    id TEXT PRIMARY KEY,
-    user_id TEXT,
-    time INTEGER,
-    replies_count INTEGER,
-    ranks_up INTEGER,
-    ranks_down INTEGER,
-    rank_score INTEGER,
+    post_id CHAR(36),
+    root_comment CHAR(27),
+    parent_id CHAR(27) NULL,
+    depth INT UNSIGNED DEFAULT 0,
+    id CHAR(27) PRIMARY KEY,
+    user_id CHAR(14),
+    time DATETIME,
+    replies_count INT UNSIGNED DEFAULT 0,
+    ranks_up INT UNSIGNED DEFAULT 0,
+    ranks_down INT UNSIGNED DEFAULT 0,
+    rank_score INT UNSIGNED DEFAULT 0,
     content TEXT,
-    user_reputation INTEGER,
-    best_score INTEGER,
-    FOREIGN KEY (article) REFERENCES article(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    
+    user_reputation INT UNSIGNED DEFAULT 0,
+    best_score INT UNSIGNED DEFAULT 0,
+    FOREIGN KEY (post_id) REFERENCES article(post_id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT fk_parent_id FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT fk_root_comment FOREIGN KEY (root_comment) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
+
 ```
