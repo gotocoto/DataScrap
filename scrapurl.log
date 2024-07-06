@@ -1,62 +1,432 @@
-2024-07-05 21:50:53,025 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
-2024-07-05 21:50:53,049 - INFO - Scrapping url: https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
-2024-07-05 21:50:53,049 - INFO - Scrapping url: https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false
-2024-07-05 21:50:53,733 - DEBUG - 1
-2024-07-05 21:50:53,763 - DEBUG - 1
-2024-07-05 21:50:53,787 - DEBUG - 1
-2024-07-05 21:50:54,111 - INFO - 'messages_count': 600
+2024-07-06 15:36:40,285 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:36:40,462 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:36:40,644 - INFO - 'messages_count': 600
 'replies_count': 170
 'comments_count': 430
-2024-07-05 21:50:54,111 - DEBUG - 2
-2024-07-05 21:50:54,208 - INFO - 'messages_count': 2118
+2024-07-06 15:36:40,644 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:36:40,745 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:36:40,893 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:36:41,049 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:36:41,219 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:36:41,453 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:36:41,641 - DEBUG - Users added: 411
+2024-07-06 15:38:15,642 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:38:16,595 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:38:16,744 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 15:38:16,745 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:38:16,888 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:38:17,046 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:38:17,206 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:38:17,393 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:38:17,551 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:38:17,780 - DEBUG - Users added: 411
+2024-07-06 15:40:27,540 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:40:27,977 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:40:28,215 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 15:40:28,215 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:40:28,401 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:40:28,639 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:40:28,903 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:40:29,166 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:40:29,315 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:40:29,514 - DEBUG - Users added: 411
+2024-07-06 15:42:52,472 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:42:52,655 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:42:52,904 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 15:42:52,905 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:42:53,065 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:42:53,220 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:42:53,449 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:42:53,637 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:42:54,010 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:42:54,241 - DEBUG - Users added: 411
+2024-07-06 15:42:56,354 - INFO - Comments added: 600
+2024-07-06 15:44:32,421 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:44:32,444 - INFO - Scrapping url: https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:32,445 - INFO - Scrapping url: https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:32,617 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:44:32,642 - DEBUG - Request: 1 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:32,840 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 15:44:32,841 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:44:32,971 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:44:33,096 - DEBUG - Request: 1 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:33,122 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:44:33,225 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:44:33,241 - INFO - 'messages_count': 2118
 'replies_count': 533
 'comments_count': 1585
-2024-07-05 21:50:54,209 - DEBUG - 2
-2024-07-05 21:50:54,271 - INFO - 'messages_count': 1150
+2024-07-06 15:44:33,242 - DEBUG - Request: 2 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:33,369 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:44:33,534 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:44:33,560 - DEBUG - Request: 3 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:33,762 - DEBUG - Users added: 411
+2024-07-06 15:44:34,113 - INFO - Comments added: 600
+2024-07-06 15:44:34,137 - DEBUG - Request took to long to respond. Trying again.. {'count': 10000, 'child_count': 1000, 'offset': 0, 'depth': 1000, 'sort_by': 'oldest'} {'User-Agent': '', 'x-spot-id': 'sp_ANQXRpqH', 'x-post-id': 'urn:uri:base64:b340a243-f063-58b0-89cd-60f40baf9544'}
+2024-07-06 15:44:34,256 - DEBUG - Request: 4 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:34,564 - DEBUG - Request: 5 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:34,824 - INFO - 'messages_count': 1150
 'replies_count': 413
 'comments_count': 737
-2024-07-05 21:50:54,271 - DEBUG - 2
-2024-07-05 21:50:54,499 - DEBUG - 3
-2024-07-05 21:50:54,590 - DEBUG - 3
-2024-07-05 21:50:54,752 - DEBUG - 4
-2024-07-05 21:50:54,794 - DEBUG - 3
-2024-07-05 21:50:54,994 - DEBUG - 5
-2024-07-05 21:50:55,144 - DEBUG - 4
-2024-07-05 21:50:55,307 - DEBUG - 4
-2024-07-05 21:50:55,369 - DEBUG - 5
-2024-07-05 21:50:55,482 - DEBUG - 6
-2024-07-05 21:50:55,535 - DEBUG - 5
-2024-07-05 21:50:55,693 - DEBUG - 6
-2024-07-05 21:50:55,775 - DEBUG - 7
-2024-07-05 21:50:55,855 - DEBUG - 6
-2024-07-05 21:50:56,067 - DEBUG - 7
-2024-07-05 21:50:56,160 - DEBUG - 7
-2024-07-05 21:50:56,342 - DEBUG - 8
-2024-07-05 21:50:56,462 - DEBUG - 8
-2024-07-05 21:50:56,573 - DEBUG - 9
-2024-07-05 21:50:56,651 - DEBUG - 9
-2024-07-05 21:50:56,893 - DEBUG - 10
-2024-07-05 21:50:56,909 - DEBUG - 10
-2024-07-05 21:50:57,133 - DEBUG - 11
-2024-07-05 21:50:57,204 - DEBUG - 11
-2024-07-05 21:50:57,439 - DEBUG - 12
-2024-07-05 21:50:58,007 - DEBUG - Error making request: 
-2024-07-05 21:50:58,242 - DEBUG - Error making request: 
-2024-07-05 21:50:58,509 - DEBUG - 11
-2024-07-05 21:50:58,743 - DEBUG - 12
-2024-07-05 21:50:58,879 - DEBUG - 12
-2024-07-05 21:50:58,972 - DEBUG - 13
-2024-07-05 21:50:59,131 - DEBUG - 13
-2024-07-05 21:50:59,295 - DEBUG - 14
-2024-07-05 21:50:59,536 - DEBUG - 15
-2024-07-05 21:50:59,771 - DEBUG - 16
-2024-07-05 21:51:00,205 - DEBUG - 17
-2024-07-05 21:51:00,425 - DEBUG - 18
-2024-07-05 21:51:00,656 - DEBUG - 19
-2024-07-05 21:51:00,912 - DEBUG - 20
-2024-07-05 21:51:01,148 - DEBUG - 21
-2024-07-05 21:51:01,380 - DEBUG - 22
-2024-07-05 21:51:01,610 - DEBUG - 23
-2024-07-05 21:51:01,852 - DEBUG - 24
-2024-07-05 21:51:02,103 - DEBUG - 25
-2024-07-05 21:51:02,346 - DEBUG - 26
+2024-07-06 15:44:34,825 - DEBUG - Request: 2 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:34,833 - DEBUG - Request: 6 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:35,128 - DEBUG - Request: 7 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:35,532 - DEBUG - Request: 8 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:35,555 - DEBUG - Request: 3 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:35,879 - DEBUG - Request: 4 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:35,883 - DEBUG - Request: 9 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:36,093 - DEBUG - Request: 10 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:36,169 - DEBUG - Request: 5 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:36,423 - DEBUG - Request: 6 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:36,424 - DEBUG - Request: 11 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:36,727 - DEBUG - Request: 12 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:36,736 - DEBUG - Request: 7 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:37,054 - DEBUG - Request: 13 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:37,056 - DEBUG - Request: 8 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:37,369 - DEBUG - Request: 14 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:37,512 - DEBUG - Request: 9 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:37,686 - DEBUG - Request: 15 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:37,934 - DEBUG - Request: 10 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:38,014 - DEBUG - Request: 16 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:38,170 - DEBUG - Request: 11 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:38,330 - DEBUG - Request: 17 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:38,497 - DEBUG - Request: 12 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:38,571 - DEBUG - Request: 18 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:38,727 - DEBUG - Request: 13 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:44:38,888 - DEBUG - Request: 19 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:38,975 - DEBUG - Users added: 735
+2024-07-06 15:44:42,496 - INFO - Comments added: 1153
+2024-07-06 15:44:42,506 - DEBUG - Request took to long to respond. Trying again.. {'count': 10000, 'child_count': 1000, 'offset': 1795, 'depth': 1000, 'sort_by': 'oldest'} {'User-Agent': '', 'x-spot-id': 'sp_ANQXRpqH', 'x-post-id': 'urn:uri:base64:3e382f98-e8d5-5e35-8b06-382f2e135c97'}
+2024-07-06 15:44:43,282 - DEBUG - Request: 20 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:43,609 - DEBUG - Request: 21 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:43,931 - DEBUG - Request: 22 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:44,242 - DEBUG - Request: 23 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:44,564 - DEBUG - Request: 24 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:44,818 - DEBUG - Request: 25 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:45,139 - DEBUG - Request: 26 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:44:45,475 - DEBUG - Users added: 1495
+2024-07-06 15:44:48,058 - INFO - Comments added: 2126
+2024-07-06 15:45:55,266 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:45:55,289 - INFO - Scrapping url: https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:55,290 - INFO - Scrapping url: https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:55,455 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:45:55,629 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 15:45:55,630 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:45:55,776 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:45:55,830 - DEBUG - Request: 1 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:55,854 - DEBUG - Request: 1 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:56,008 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:45:56,042 - INFO - 'messages_count': 1150
+'replies_count': 413
+'comments_count': 737
+2024-07-06 15:45:56,042 - DEBUG - Request: 2 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:56,054 - INFO - 'messages_count': 2118
+'replies_count': 533
+'comments_count': 1585
+2024-07-06 15:45:56,055 - DEBUG - Request: 2 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:56,183 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:45:56,200 - DEBUG - Request: 3 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:56,210 - DEBUG - Request: 3 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:56,329 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:45:56,340 - DEBUG - Request: 4 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:56,349 - DEBUG - Request: 4 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:56,484 - DEBUG - Request: 5 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:56,503 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:45:56,504 - DEBUG - Request: 5 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:56,724 - DEBUG - Users added: 411
+2024-07-06 15:45:56,905 - INFO - Comments added: 600
+2024-07-06 15:45:56,916 - DEBUG - Request: 6 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:56,930 - DEBUG - Request: 6 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:57,056 - DEBUG - Request: 7 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:57,090 - DEBUG - Request: 7 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:57,214 - DEBUG - Request: 8 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:57,214 - DEBUG - Request: 8 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:57,370 - DEBUG - Request: 9 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:57,377 - DEBUG - Request: 9 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:57,531 - DEBUG - Request: 10 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:57,560 - DEBUG - Request: 10 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:57,683 - DEBUG - Request: 11 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:57,694 - DEBUG - Request: 11 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:57,843 - DEBUG - Request: 12 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:57,861 - DEBUG - Request: 12 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:58,001 - DEBUG - Request: 13 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:45:58,010 - DEBUG - Request: 13 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:58,227 - DEBUG - Request: 14 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:58,337 - DEBUG - Request: 15 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:58,488 - DEBUG - Request: 16 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:58,649 - DEBUG - Request: 17 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:58,804 - DEBUG - Request: 18 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:58,965 - DEBUG - Request: 19 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:59,130 - DEBUG - Request: 20 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:59,300 - DEBUG - Request: 21 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:59,456 - DEBUG - Request: 22 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:59,608 - DEBUG - Request: 23 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:59,767 - DEBUG - Request: 24 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:45:59,927 - DEBUG - Request: 25 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:46:00,110 - DEBUG - Request: 26 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:46:00,371 - DEBUG - Users added: 1495
+2024-07-06 15:46:02,115 - INFO - Comments added: 2126
+2024-07-06 15:53:29,249 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:53:29,272 - INFO - Scrapping url: https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:29,272 - INFO - Scrapping url: https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:29,429 - DEBUG - Request: 1 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:29,456 - DEBUG - Request: 1 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:29,481 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:53:29,707 - INFO - 'messages_count': 1150
+'replies_count': 413
+'comments_count': 737
+2024-07-06 15:53:29,707 - DEBUG - Request: 2 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:29,721 - INFO - 'messages_count': 2118
+'replies_count': 533
+'comments_count': 1585
+2024-07-06 15:53:29,721 - DEBUG - Request: 2 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:29,768 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 15:53:29,769 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:53:29,874 - DEBUG - Request: 3 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:29,906 - DEBUG - Request: 3 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:30,036 - DEBUG - Request: 4 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:30,052 - DEBUG - Request: 4 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:30,062 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:53:30,180 - DEBUG - Request: 5 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:30,187 - DEBUG - Request: 5 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:30,339 - DEBUG - Request: 6 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:30,347 - DEBUG - Request: 6 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:30,356 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:53:30,494 - DEBUG - Request: 7 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:30,502 - DEBUG - Request: 7 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:30,642 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:53:30,654 - DEBUG - Request: 8 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:30,665 - DEBUG - Request: 8 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:30,808 - DEBUG - Request: 9 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:30,844 - DEBUG - Request: 9 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:30,953 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:53:30,982 - DEBUG - Request: 10 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:30,993 - DEBUG - Request: 10 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:31,126 - DEBUG - Request: 11 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:31,138 - DEBUG - Request: 11 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:31,300 - DEBUG - Request: 12 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:31,301 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:53:31,309 - DEBUG - Request: 12 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:31,451 - DEBUG - Request: 13 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:31,460 - DEBUG - Request: 13 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:53:31,589 - DEBUG - Users added: 411
+2024-07-06 15:53:31,871 - INFO - Comments added: 600
+2024-07-06 15:53:31,880 - DEBUG - Request: 14 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:32,013 - DEBUG - Request: 15 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:32,190 - DEBUG - Request: 16 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:32,336 - DEBUG - Request: 17 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:32,486 - DEBUG - Request: 18 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:32,659 - DEBUG - Request: 19 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:32,816 - DEBUG - Request: 20 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:32,983 - DEBUG - Request: 21 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:33,135 - DEBUG - Request: 22 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:33,298 - DEBUG - Request: 23 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:33,451 - DEBUG - Request: 24 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:33,614 - DEBUG - Request: 25 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:33,767 - DEBUG - Request: 26 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:53:34,047 - DEBUG - Users added: 1495
+2024-07-06 15:53:34,531 - INFO - Comments added: 2126
+2024-07-06 15:54:18,544 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:18,567 - INFO - Scrapping url: https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:18,568 - INFO - Scrapping url: https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:18,736 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:18,763 - DEBUG - Request: 1 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:18,905 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 15:54:18,905 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:18,920 - INFO - 'messages_count': 1150
+'replies_count': 413
+'comments_count': 737
+2024-07-06 15:54:18,920 - DEBUG - Request: 2 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:19,063 - DEBUG - Request: 1 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:19,066 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:19,071 - DEBUG - Request: 3 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:19,211 - DEBUG - Request: 4 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:19,233 - INFO - 'messages_count': 2118
+'replies_count': 533
+'comments_count': 1585
+2024-07-06 15:54:19,234 - DEBUG - Request: 2 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:19,288 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:19,355 - DEBUG - Request: 5 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:19,382 - DEBUG - Request: 3 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:19,445 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:19,525 - DEBUG - Request: 6 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:19,535 - DEBUG - Request: 4 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:19,616 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:19,683 - DEBUG - Request: 5 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:19,692 - DEBUG - Request: 7 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:19,786 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:19,843 - DEBUG - Request: 8 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:19,854 - DEBUG - Request: 6 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:19,966 - DEBUG - Users added: 411
+2024-07-06 15:54:22,438 - INFO - Comments added: 600
+2024-07-06 15:54:22,449 - DEBUG - Request took to long to respond. Trying again.. {'count': 10000, 'child_count': 1000, 'offset': 499, 'depth': 1000, 'sort_by': 'oldest'} {'User-Agent': '', 'x-spot-id': 'sp_ANQXRpqH', 'x-post-id': 'urn:uri:base64:3e382f98-e8d5-5e35-8b06-382f2e135c97'}
+2024-07-06 15:54:22,453 - DEBUG - Request took to long to respond. Trying again.. {'count': 10000, 'child_count': 1000, 'offset': 688, 'depth': 1000, 'sort_by': 'oldest'} {'User-Agent': '', 'x-spot-id': 'sp_ANQXRpqH', 'x-post-id': 'urn:uri:base64:b340a243-f063-58b0-89cd-60f40baf9544'}
+2024-07-06 15:54:23,131 - DEBUG - Request: 9 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:23,135 - DEBUG - Request: 7 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:23,275 - DEBUG - Request: 10 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:23,287 - DEBUG - Request: 8 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:23,366 - DEBUG - Request: 11 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:23,455 - DEBUG - Request: 12 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:23,615 - DEBUG - Request: 13 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:23,830 - DEBUG - Users added: 735
+2024-07-06 15:54:27,315 - INFO - Comments added: 1153
+2024-07-06 15:54:27,325 - DEBUG - Request took to long to respond. Trying again.. {'count': 10000, 'child_count': 1000, 'offset': 699, 'depth': 1000, 'sort_by': 'oldest'} {'User-Agent': '', 'x-spot-id': 'sp_ANQXRpqH', 'x-post-id': 'urn:uri:base64:3e382f98-e8d5-5e35-8b06-382f2e135c97'}
+2024-07-06 15:54:28,012 - DEBUG - Request: 9 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:28,181 - DEBUG - Request: 10 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:28,329 - DEBUG - Request: 11 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:28,483 - DEBUG - Request: 12 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:28,656 - DEBUG - Request: 13 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:28,804 - DEBUG - Request: 14 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:28,961 - DEBUG - Request: 15 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:29,120 - DEBUG - Request: 16 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:29,296 - DEBUG - Request: 17 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:29,451 - DEBUG - Request: 18 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:29,618 - DEBUG - Request: 19 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:29,762 - DEBUG - Request: 20 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:29,924 - DEBUG - Request: 21 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:30,165 - DEBUG - Request: 22 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:30,328 - DEBUG - Request: 23 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:30,486 - DEBUG - Request: 24 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:30,638 - DEBUG - Request: 25 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:30,805 - DEBUG - Request: 26 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:31,045 - DEBUG - Users added: 1495
+2024-07-06 15:54:33,333 - INFO - Comments added: 2126
+2024-07-06 15:54:37,121 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:37,144 - INFO - Scrapping url: https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:37,145 - INFO - Scrapping url: https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:37,292 - DEBUG - Request: 1 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:37,317 - DEBUG - Request: 1 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:37,342 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:37,476 - INFO - 'messages_count': 2118
+'replies_count': 533
+'comments_count': 1585
+2024-07-06 15:54:37,477 - DEBUG - Request: 2 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:37,490 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 15:54:37,490 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:37,565 - INFO - 'messages_count': 1150
+'replies_count': 413
+'comments_count': 737
+2024-07-06 15:54:37,566 - DEBUG - Request: 2 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:37,606 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:37,630 - DEBUG - Request: 3 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:37,704 - DEBUG - Request: 3 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:37,762 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:37,772 - DEBUG - Request: 4 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:37,837 - DEBUG - Request: 4 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:37,913 - DEBUG - Request: 5 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:37,916 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:38,011 - DEBUG - Request: 5 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:38,017 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:38,076 - DEBUG - Request: 6 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:38,172 - DEBUG - Request: 6 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:38,182 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 15:54:38,248 - DEBUG - Request: 7 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:38,397 - DEBUG - Users added: 411
+2024-07-06 15:54:38,554 - INFO - Comments added: 600
+2024-07-06 15:54:38,559 - DEBUG - Request: 7 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:38,568 - DEBUG - Request: 8 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:38,721 - DEBUG - Request: 9 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:38,731 - DEBUG - Request: 8 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:38,886 - DEBUG - Request: 9 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:38,901 - DEBUG - Request: 10 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:39,047 - DEBUG - Request: 11 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:39,058 - DEBUG - Request: 10 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:39,200 - DEBUG - Request: 11 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:39,229 - DEBUG - Request: 12 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:39,356 - DEBUG - Request: 12 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:39,367 - DEBUG - Request: 13 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:39,468 - DEBUG - Request: 14 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:39,525 - DEBUG - Request: 13 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 15:54:39,606 - DEBUG - Request: 15 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:39,769 - DEBUG - Request: 16 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:39,935 - DEBUG - Request: 17 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:40,086 - DEBUG - Request: 18 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:40,250 - DEBUG - Request: 19 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:40,407 - DEBUG - Request: 20 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:40,565 - DEBUG - Request: 21 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:40,746 - DEBUG - Request: 22 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:40,900 - DEBUG - Request: 23 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:41,061 - DEBUG - Request: 24 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:41,210 - DEBUG - Request: 25 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:41,367 - DEBUG - Request: 26 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 15:54:41,639 - DEBUG - Users added: 1495
+2024-07-06 15:54:42,455 - INFO - Comments added: 2126
+2024-07-06 16:04:04,298 - INFO - Scrapping url: https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 16:04:04,322 - INFO - Scrapping url: https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:04,322 - INFO - Scrapping url: https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:07,500 - DEBUG - Request: 1 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:07,779 - INFO - 'messages_count': 2118
+'replies_count': 533
+'comments_count': 1585
+2024-07-06 16:04:07,780 - DEBUG - Request: 2 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:08,019 - DEBUG - Request: 3 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:08,194 - DEBUG - Request: 4 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:08,338 - DEBUG - Request: 5 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:08,545 - DEBUG - Request: 1 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:08,548 - DEBUG - Request: 6 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:08,719 - DEBUG - Request: 7 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:08,742 - INFO - 'messages_count': 1150
+'replies_count': 413
+'comments_count': 737
+2024-07-06 16:04:08,743 - DEBUG - Request: 2 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:08,922 - DEBUG - Request: 3 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:08,955 - DEBUG - Request: 8 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:09,062 - DEBUG - Request: 4 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:09,142 - DEBUG - Request: 9 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:09,218 - DEBUG - Request: 5 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:09,310 - DEBUG - Request: 10 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:09,378 - DEBUG - Request: 6 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:09,522 - DEBUG - Request: 11 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:09,533 - DEBUG - Request: 7 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:09,702 - DEBUG - Request: 12 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:09,710 - DEBUG - Request: 8 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:09,856 - DEBUG - Request: 9 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:09,918 - DEBUG - Request: 13 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:10,017 - DEBUG - Request: 1 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 16:04:10,038 - DEBUG - Request: 10 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:10,102 - DEBUG - Request: 14 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:10,176 - DEBUG - Request: 11 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:10,259 - INFO - 'messages_count': 600
+'replies_count': 170
+'comments_count': 430
+2024-07-06 16:04:10,260 - DEBUG - Request: 2 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 16:04:10,270 - DEBUG - Request: 15 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:10,334 - DEBUG - Request: 12 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:10,421 - DEBUG - Request: 3 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 16:04:10,492 - DEBUG - Request: 13 for politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war
+2024-07-06 16:04:10,579 - DEBUG - Request: 4 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 16:04:10,694 - DEBUG - Users added: 735
+2024-07-06 16:04:10,861 - INFO - Comments added: 1153
+2024-07-06 16:04:10,866 - DEBUG - Request: 5 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 16:04:10,907 - DEBUG - Request: 16 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:11,059 - DEBUG - Request: 17 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:11,132 - DEBUG - Request: 6 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 16:04:11,288 - DEBUG - Request: 18 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:11,365 - DEBUG - Request: 7 for politics/global-elites-took-150-private-jets-fight-climate-change-davos
+2024-07-06 16:04:11,464 - DEBUG - Request: 19 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:11,588 - DEBUG - Users added: 411
+2024-07-06 16:04:11,679 - INFO - Comments added: 600
+2024-07-06 16:04:11,780 - DEBUG - Request: 20 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:12,007 - DEBUG - Request: 21 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:12,187 - DEBUG - Request: 22 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:12,332 - DEBUG - Request: 23 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:12,499 - DEBUG - Request: 24 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:12,726 - DEBUG - Request: 25 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:12,897 - DEBUG - Request: 26 for politics/al-gore-history-climate-predictions-statements-proven-false
+2024-07-06 16:04:13,102 - DEBUG - Users added: 1495
+2024-07-06 16:04:13,417 - INFO - Comments added: 2126

@@ -8,6 +8,8 @@ import json
 import time
 import logging
 import mysql.connector
+import traceback
+from datetime import datetime
 #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 '''
 logging.basicConfig(
@@ -41,14 +43,16 @@ with open('db_config.json', 'r') as config_file:
 
 def to_comment(chat,entry):
         try:
+            if(entry['user_id'][0]!='u'):
+                print(entry['user_id'][0])
             return [
-                chat['post_id'],
-                entry['root_comment'],
-                entry['parent_id'],
+                chat['post_id'][21:],
+                entry['root_comment'][-27:],
+                entry['parent_id'][-27:] if entry['parent_id'] else None,
                 entry['depth'],
-                entry['id'],
+                entry['id'][-27:],
                 entry['user_id'],
-                entry['time'],
+                datetime.fromtimestamp(entry['time']),
                 entry['replies_count'],
                 entry['rank'].get('ranks_up', 0),
                 entry['rank'].get('ranks_down', 0),
@@ -82,8 +86,7 @@ def get_replies(chat,ids,comment):
             logger.debug(f"Unhandled exception in get_replies: {e}")
 
         return replies
-async def make_request(url, headers, json_data, request_count):
-    logger.debug(request_count)
+async def make_request(url, headers, json_data,attempt = 1):
     #start_time = time.time()
 
     try:
@@ -95,22 +98,29 @@ async def make_request(url, headers, json_data, request_count):
                 if response.status == 200:
                     #success_time.append(elapsed_time)
                     return await response.json()
+                elif response.status == 403:
+                    logger.debug(f"Too many request made. Trying again: Attempt {attempt} ")
+                    await asyncio.sleep(attempt)
+                    
                 elif response.status == 104:
                     logger.debug("Connection reset by peer. Waiting for a second before retrying...")
-                    await asyncio.sleep(1)
-                    return await make_request(url, headers, json_data, request_count)  # Retry
+                    await asyncio.sleep(attempt)
                 else:
                     logger.debug(f"Error in request. Status code: {response.status}")
+                if(attempt>10):
+                    logger.debug(f"Unable to process request, try 10 times and failed")
                     return None
+                attempt+=1
+                return await make_request(url, headers, json_data,attempt=attempt)  # Retry
 
-    except Exception as e:
-        logger.debug(f"Error making request: {e}")
+    except TimeoutError as e:
+        logger.debug(f"Request took to long to respond. Trying again.. {json_data} {headers}")
         #end_time = time.time()
         #elapsed_time = end_time - start_time
         #error_time.append(elapsed_time)
         # Potential infinite loop fix later (e.g., with retries limit)
         await asyncio.sleep(.5)
-        return await make_request(url, headers, json_data, request_count)
+        return await make_request(url, headers, json_data,attempt=attempt+1)
 async def async_get(url, timeout=5,sleep =1):
     async with aiohttp.ClientSession() as session:
         for _ in range(5):
@@ -135,7 +145,7 @@ async def scrape_url(url,semaphore,search = ""):
                 address_key = soup.head.find(attrs={"name": "dc.identifier"})['content']
                 title = soup.head.find(attrs={"name": "dc.title"})['content']
                 author = soup.head.find(attrs={"name": "dc.creator"})['content']
-                date = soup.head.find(attrs={"name": "dc.date"})['content']
+                last_mod = soup.head.find(attrs={"name": "dcterms.modified"})['content']
             else:
                 logger.debug("NO HTML!!")
         except Exception as e:
@@ -154,12 +164,13 @@ async def scrape_url(url,semaphore,search = ""):
             'sort_by': 'oldest',
         }
 
-        url = 'https://api-2-0.spot.im/v1.0.0/conversation/read'
+        api_url = 'https://api-2-0.spot.im/v1.0.0/conversation/read'
 
         try:
             # Make the initial request
             request_count = 1
-            response_json = await make_request(url, headers, json_data, request_count)
+            logger.debug(f"Request: {request_count} for {url[24:]}")
+            response_json = await make_request(api_url, headers, json_data)
 
             if response_json:
                 chat = response_json['conversation']
@@ -174,7 +185,8 @@ async def scrape_url(url,semaphore,search = ""):
                     i += 1
                     json_data['offset'] = offset
                     request_count += 1
-                    response_json = await make_request(url, headers, json_data, request_count)
+                    logger.debug(f"Request: {request_count} for {url[24:]}")
+                    response_json = await make_request(api_url, headers, json_data)
 
                     if response_json:
                         new_chat = response_json['conversation']
@@ -182,16 +194,21 @@ async def scrape_url(url,semaphore,search = ""):
                         offset = new_chat['offset']
 
                         chat['comments'].extend(new_chat['comments'])
-                        chat['users'].update(new_chat['users'])
+                        chat['users']={**chat['users'],**new_chat['users']}
+                        #chat['users'].update(new_chat['users'])
                     else:
-                        logger.debug("Error in inner request.")
+                        logger.debug(f"Error in inner request. Failed for url {url}")
                         break
-
+            else:
+                logger.debug(f'Error in first comment request. Failed for url {url}')
         except KeyboardInterrupt:
             logger.debug("Process interrupted.")
         except Exception as e:
             logger.debug("Unhandled exception in scrape url: "+str(e))
             logger.debug(e)
+            #TODO UPDATE TO CORRECTLY HANDLE ERROR
+            #Should return error upstream so main knows and handles correctly
+            return
         #print(response_json)
         #print("{" + "\n".join("{!r}: {!r},".format(k, v) for k, v in data.items()) + "}")
         #the 'demopage.asp' prints all HTTP Headers
@@ -201,36 +218,82 @@ async def scrape_url(url,semaphore,search = ""):
             #print(connection.total_changes)
             cur = connection.cursor()
             connection.start_transaction()
-            article = (chat['post_id'],url,title,author,date,address_key,search)
-            cur.execute("INSERT OR REPLACE INTO article (id, url,title,author,date,key,search) VALUES (?,?,?,?,?,?,?);",article)
-            #connection.commit()
+            article = (url, title, author, address_key[:15], last_mod)  # Ensure address_key is truncated correctly if needed
+            insert_article = """
+                INSERT INTO article (url, title, author, post_id, last_mod)
+                VALUES (%s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                title = VALUES(title),
+                author = VALUES(author),
+                last_mod = VALUES(last_mod);
+            """
+            cur.execute(insert_article,article)
+            
+
 
             #print(connection.total_changes)
             cur = connection.cursor()
-            chat_list = list(map(lambda x: (x['id'],x['user_name'],x['reputation'].get('received_ranked_up',0),x['reputation'].get('total',0)),chat['users'].values()))
-            cur.executemany("INSERT OR REPLACE INTO user (id, user_name, received_ranked_up, total) VALUES (?,?,?,?);",chat_list)
+            '''
+            users = [
+                (user['id'], user['user_name'], user['reputation'].get('received_ranked_up', 0), user['reputation'].get('total', 0))
+                for user in chat['users'].values()
+            ]'''
+            users = list(map(lambda x: (x['id'],x['user_name'],x['reputation'].get('received_ranked_up',0),x['reputation'].get('total',0)),chat['users'].values()))
+            #print(chat['users'].values())
+            #print(type(chat['users'].values()))
+            insert_users = """
+                INSERT INTO user (id, user_name, received_ranked_up, total)
+                VALUES (%s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                user_name = VALUES(user_name),
+                received_ranked_up = VALUES(received_ranked_up),
+                total = VALUES(total);
+            """
+            cur.executemany(insert_users,users)
+            #connection.commit()
+            logger.debug(f'Users added: %d' % len(users)) 
             #ADD comments
             #from collections import Counter
             comments = []
             ids = set()
 
             for comment in chat['comments']:
-                comment_data = get_replies(chat,ids,comment)
+                #TODO OPTIMZIE GET REPLIES
+                comment_data = get_replies(chat, ids, comment)
                 if comment_data:
-                    comments += comment_data
-
+                    comments.extend(comment_data)
+            #user_ids = [user[0] for user in users]
+            #print(comments)
             #ids = list(map(lambda x:x[4],comments))
             #print(Counter(ids))
             #print(connection.total_changes)
             #connection.execute("PRAGMA busy_timeout = 30000") 
-            cur.executemany("INSERT OR REPLACE INTO comment (article, root_comment, parent_id, depth, id, user_id, time, replies_count, ranks_up, ranks_down, rank_score, content, user_reputation, best_score) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);",comments)
-            cur.execute("UPDATE Articles \
-                        SET Scrapped=CURDATE(),Title=?,Author=? \
-                        WHERE URL=?;",(title,author,url))
+            insert_comments = """
+                INSERT INTO comment 
+                (post_id, root_comment, parent_id, depth, id, user_id, time, replies_count, ranks_up, ranks_down, rank_score, content, user_reputation, best_score) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                post_id = VALUES(post_id),
+                root_comment = VALUES(root_comment),
+                parent_id = VALUES(parent_id),
+                depth = VALUES(depth),
+                user_id = VALUES(user_id),
+                time = VALUES(time),
+                replies_count = VALUES(replies_count),
+                ranks_up = VALUES(ranks_up),
+                ranks_down = VALUES(ranks_down),
+                rank_score = VALUES(rank_score),
+                content = VALUES(content),
+                user_reputation = VALUES(user_reputation),
+                best_score = VALUES(best_score);
+                """
+            for comment in comments:
+                #print(comment)
+                cur.execute(insert_comments,comment)
             connection.commit()
             logger.info(f'Comments added: %d' % len(comments)) 
         except mysql.connector.Error as err:
-            print(f"Error: {err}")
+            print(f"Error: {err} on line {traceback.print_exc()}")
             connection.rollback()
         finally:
             if connection.is_connected():
@@ -252,8 +315,9 @@ async def scrape_urls(urls):
 
 
 def main():
-
+    #urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos']
     urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos', 'https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war', 'https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false']
+    #urls = ['https://www.foxnews.com/politics/massachusetts-gov-healey-unveils-climate-blueprint-coastal-communities']
     asyncio.run(scrape_urls(urls))
 
 # Print the profiling results
