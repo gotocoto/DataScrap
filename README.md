@@ -13,7 +13,6 @@
 | Title   | VARCHAR(255)   |                               | Title of the article                          |
 | Author  | VARCHAR(30)    |                               | Author of the article                         |
 
-
 ```sql
 CREATE TABLE Articles (
     URL VARCHAR(230) PRIMARY KEY,
@@ -24,10 +23,55 @@ CREATE TABLE Articles (
     Author VARCHAR(30) DEFAULT NULL
 );
 ```
-## User
-Certainly! Below is the MySQL `CREATE TABLE` statement for the `user` table along with its Markdown description:
 
-### MySQL `CREATE TABLE` Statement:
+### Category
+```sql
+SELECT count(category),Category FROM Articles GROUP BY Category;
+```
+| Count           | Category               |
+|-----------------|------------------------|
+|              10 |                        |
+|           11001 | auto                   |
+|           89836 | entertainment          |
+|             634 | faith-values           |
+|              12 | family                 |
+|           15109 | food-drink             |
+|               1 | forum                  |
+|               1 | fox-and-friends        |
+|               1 | fox-friends            |
+|               1 | games                  |
+|            1117 | great-outdoors         |
+|           48061 | health                 |
+|           19461 | lifestyle              |
+|           49030 | media                  |
+|               2 | mediabuzz              |
+|               3 | midterms-2018          |
+|             154 | official-polls         |
+|           37121 | opinion                |
+|          143157 | politics               |
+|            1619 | real-estate            |
+|           17261 | science                |
+|             289 | shows                  |
+|          313748 | sports                 |
+|          229399 | story                  |
+|               1 | sunday-morning-futures |
+|           15436 | tech                   |
+|           36511 | transcript             |
+|           12267 | travel                 |
+|          247542 | us                     |
+|             439 | weather                |
+|          237713 | world                  |
+
+```sql
+SELECT url FROM Articles WHERE YEAR(LastMod)=2020 and Category='politics' ORDER BY LastMod LIMIT 5 FOR UPDATE ;
+```
+```sql
+UPDATE Articles
+SET Scrapped=CURDATE(),Title=?,Author=?
+WHERE URL=?;
+```
+
+## User
 ```sql
 CREATE TABLE user (
     id VARCHAR(255) PRIMARY KEY,
@@ -57,7 +101,7 @@ CREATE TABLE user (
 ## Comment
 | Column Name      | Data Type  | Description                                      |
 |------------------|------------|--------------------------------------------------|
-| article          | TEXT       | The ID of the related article                    |
+| article          | VARCHAR(230)| The ID of the related article                    |
 | root_comment     | TEXT       | The ID of the root comment (if applicable)       |
 | parent_id        | TEXT       | The ID of the parent comment (if applicable)     |
 | depth            | INTEGER    | The depth level of the comment in the thread     |
@@ -75,7 +119,7 @@ CREATE TABLE user (
 
 ```sql
 CREATE TABLE comment (
-    article TEXT,
+    article VARCHAR(230),
     root_comment TEXT,
     parent_id TEXT,
     depth INTEGER,
