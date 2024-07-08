@@ -15,15 +15,16 @@
 | post_id    | VARCHAR(30)    |                               | Author of the article                         |
 
 ```sql
-CREATE TABLE article (
-    url VARCHAR(230) PRIMARY KEY,
-    category VARCHAR(30),
-    last_mod TIMESTAMP NOT NULL,
-    scraped TIMESTAMP DEFAULT NULL,
-    title VARCHAR(255) DEFAULT NULL,
-    author VARCHAR(30) DEFAULT NULL,
-    post_id CHAR(36) DEFAULT NULL UNIQUE
+CREATE TABLE `article` (
+    `url` VARCHAR(230) PRIMARY KEY,
+    `category` VARCHAR(30),
+    `last_mod` TIMESTAMP NOT NULL,
+    `scraped` TIMESTAMP DEFAULT NULL,
+    `title` VARCHAR(255) DEFAULT NULL,
+    `author` VARCHAR(60) DEFAULT NULL,
+    `post_id` CHAR(36) DEFAULT NULL UNIQUE
 );
+
 ```
 
 ### Category
@@ -132,9 +133,10 @@ CREATE TABLE comment (
     user_reputation INT UNSIGNED DEFAULT 0,
     best_score INT UNSIGNED DEFAULT 0,
     FOREIGN KEY (post_id) REFERENCES article(post_id) ON DELETE CASCADE ON UPDATE NO ACTION,
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE NO ACTION,
-    --CONSTRAINT fk_parent_id FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT fk_root_comment FOREIGN KEY (root_comment) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 ```
+,
+    --CONSTRAINT fk_parent_id FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    --CONSTRAINT fk_root_comment FOREIGN KEY (root_comment) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION
