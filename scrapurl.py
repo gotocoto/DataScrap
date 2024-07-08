@@ -11,11 +11,14 @@ import mysql.connector
 import traceback
 from datetime import datetime
 import os
+import sys
 log_file_path = 'scrapurl.log'
+'''
+
 if os.path.exists(log_file_path):
     # Delete the log file
     os.remove(log_file_path)
-    print(f"Deleted existing log file: {log_file_path}")
+    print(f"Deleted existing log file: {log_file_path}")'''
 #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 '''
 logging.basicConfig(
@@ -23,6 +26,16 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.DEBUG  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 )'''
+clear_log = False
+if '--clear-log' in sys.argv:
+    clear_log = True
+
+# Clear log file if clear_log flag is set
+if clear_log:
+    with open(log_file_path, 'w'):
+        pass  # This clears the log file
+    print("Log File cleared")
+
 logger = logging.getLogger('my_logger')
 logger.setLevel(logging.DEBUG)
 
@@ -318,6 +331,7 @@ async def scrape_url(url,semaphore,search = ""):
                 comment_data = get_replies(chat, ids, comment)
                 if comment_data:
                     comments.extend(comment_data)
+            logger.debug(f"Comments formated")
             #user_ids = [user[0] for user in users]
             #print(comments)
             #ids = list(map(lambda x:x[4],comments))
@@ -373,7 +387,7 @@ async def scrape_urls(urls):
     error_times = []
     batch_size = 300
     tasks = []
-    semaphore = asyncio.Semaphore(40)  # Limit to 20 concurrent tasks
+    semaphore = asyncio.Semaphore(1)  # Limit to 20 concurrent tasks
     tasks = [scrape_url(url, semaphore) for url in urls]
     await asyncio.gather(*tasks)
 
@@ -397,7 +411,7 @@ def main():
             AND category = 'politics'
             AND scraped IS NULL
             ORDER BY RAND()
-            LIMIT 500;
+            LIMIT 300;
         """
     while True:
         logger.info(f'{count} iteration of scraping urls')
@@ -420,7 +434,7 @@ def main():
                 WHERE (YEAR(last_mod) IN (2019, 2020, 2021, 2022, 2023))
                 AND scraped IS NULL
                 ORDER BY RAND()
-                LIMIT 500;
+                LIMIT 1;
             """
         '''
         new_urls_set = set(urls)
@@ -436,6 +450,7 @@ def main():
         connection.close()
         logger.info(f'Checked for overlap, starting async scrapping now')
         asyncio.run(scrape_urls(urls))
+        break
     
     
 
@@ -451,11 +466,11 @@ def speedTest(func):
     profiler.disable()
     stats = StringIO()
     stats_print = pstats.Stats(profiler, stream=stats).sort_stats('cumulative')
-    #stats_print.print_stats()
+    stats_print.print_stats()
     logger.info(stats.getvalue())
 if __name__ == "__main__":
-    main()
-    #speedTest(main)
+    #main()
+    speedTest(main)
 
 
 '''
