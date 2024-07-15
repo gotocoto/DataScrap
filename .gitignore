@@ -7,8 +7,8 @@ div_1.png
 div_2.png
 lol.png
 page.html
-scrapurl.py
+scrapurl.log
 sitemap_parser.log
 myenv/
 db_config.json
-scrapurl.log
+*.log
