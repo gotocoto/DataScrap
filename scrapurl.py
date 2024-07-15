@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import time
-import json
+import orjson
 import asyncio
 import aiohttp
 import json
@@ -12,6 +12,12 @@ import traceback
 from datetime import datetime
 import os
 import sys
+import aiomysql
+import warnings
+import cProfile
+import pstats
+from io import StringIO
+from concurrent.futures import ProcessPoolExecutor
 log_file_path = 'scrapurl.log'
 '''
 
@@ -26,9 +32,13 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.DEBUG  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 )'''
+warnings.filterwarnings("ignore", category=Warning, message="Duplicate entry")
+successful_requests = 0
+start_time = time.time()
 clear_log = False
 if '--clear-log' in sys.argv:
     clear_log = True
+
 
 # Clear log file if clear_log flag is set
 if clear_log:
@@ -38,7 +48,12 @@ if clear_log:
 
 logger = logging.getLogger('my_logger')
 logger.setLevel(logging.DEBUG)
-
+TESTING =False
+if '--testing' in sys.argv:
+    TESTING = True
+PROFILING = False
+if '--profiling' in sys.argv:
+    PROFILING = True
 # Create a formatter
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
@@ -48,17 +63,25 @@ console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 # Create a FileHandler for file output
 file_handler = logging.FileHandler(log_file_path)
-file_handler.setLevel(logging.DEBUG)
+file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 
 # Add the handlers to the logger
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
-success_time = []
-error_time = []
 
+if(TESTING):
+    # Create a new logger instance
+    table_logger = logging.getLogger('table_logger')
+    table_logger.setLevel(logging.INFO)
+
+    # Create a file handler for the logger
+    file_handler = logging.FileHandler('request_log.log')
+    formatter = logging.Formatter('%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    file_handler.setFormatter(formatter)
+    table_logger.addHandler(file_handler)
 with open('db_config.json', 'r') as config_file:
-    config = json.load(config_file)
+    config = orjson.load(config_file)
 
 def to_comment(chat,entry):
         try:
@@ -142,16 +165,16 @@ def get_replies(chat,ids,comment):
         return replies
 async def make_request(url, headers, json_data,attempt = 1):
     #start_time = time.time()
-
+    #global successful_requests
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, json=json_data, timeout=.8) as response:
-                #end_time = time.time()
-                #elapsed_time = end_time - start_time
-
+            async with session.post(url, headers=headers, json=json_data, timeout=1) as response:
                 if response.status == 200:
                     #success_time.append(elapsed_time)
-                    return await response.json()
+                    #successful_requests += 1
+                    response_json = await response.read()
+                    return orjson.loads(response_json)
+                    #return await response.json()
                 elif response.status == 403:
                     logger.debug(f"Too many request made. Trying again: Attempt {attempt} ")
                     await asyncio.sleep(attempt)
@@ -169,13 +192,8 @@ async def make_request(url, headers, json_data,attempt = 1):
 
     except TimeoutError as e:
         logger.debug(f"Request took to long to respond. Trying again.. {json_data} {headers}")
-        #end_time = time.time()
-        #elapsed_time = end_time - start_time
-        #error_time.append(elapsed_time)
-        # Potential infinite loop fix later (e.g., with retries limit)
         await asyncio.sleep(attempt)
         return await make_request(url, headers, json_data,attempt=attempt+1)
-
 async def async_get(url, timeout=3, sleep=1):
     async with aiohttp.ClientSession() as session:
         for _ in range(5):
@@ -198,10 +216,8 @@ async def async_get(url, timeout=3, sleep=1):
 
     logger.debug(RuntimeError(f'Failed to fetch {url} after multiple attempts'))
     return None
-
-
-async def scrape_url(url,semaphore,search = ""):
-    async with semaphore:
+async def scrape_url(url,get_semaphore,save_connection,save_semaphore,search = ""):
+    async with get_semaphore:
         chat = {}
         logger.info(f"Scrapping url: %s" % url)
         try:
@@ -239,33 +255,32 @@ async def scrape_url(url,semaphore,search = ""):
             logger.debug(f"Request: {request_count} for {url[24:]}")
             response_json = await make_request(api_url, headers, json_data)
 
-            if response_json:
-                chat = response_json['conversation']
-                logger.info(f"'messages_count': {chat['messages_count']}\t'replies_count': {chat['replies_count']}\t'comments_count': {chat['comments_count']}")
+            if not response_json:
+                logger.error(f'Error in first comment request. Failed for url {url}')
+                return None
+            
+            chat = response_json['conversation']
+            logger.debug(f"'messages_count': {chat['messages_count']}\t'replies_count': {chat['replies_count']}\t'comments_count': {chat['comments_count']}")
 
-                has_next = chat['has_next']
-                offset = chat['offset']
-                i = 0
+            has_next = chat['has_next']
+            offset = chat['offset']
 
-                while has_next:
-                    i += 1
-                    json_data['offset'] = offset
-                    request_count += 1
-                    logger.debug(f"Request: {request_count} for {url[24:]}")
-                    response_json = await make_request(api_url, headers, json_data)
+            while has_next:
+                json_data['offset'] = offset
+                request_count += 1
+                logger.debug(f"Request: {request_count} for {url[24:]}")
+                response_json = await make_request(api_url, headers, json_data)
 
-                    if response_json:
-                        new_chat = response_json['conversation']
-                        has_next = new_chat['has_next']
-                        offset = new_chat['offset']
+                if not response_json:
+                    logger.error(f"Error in inner request. Failed for url {url}")
+                    break
 
-                        chat['comments'].extend(new_chat['comments'])
-                        chat['users'] = {**chat['users'], **new_chat['users']}
-                    else:
-                        logger.debug(f"Error in inner request. Failed for url {url}")
-                        break
-            else:
-                logger.debug(f'Error in first comment request. Failed for url {url}')
+                new_chat = response_json['conversation']
+                has_next = new_chat['has_next']
+                offset = new_chat['offset']
+
+                chat['comments'].extend(new_chat['comments'])
+                chat['users'] = {**chat['users'], **new_chat['users']}
 
         except KeyboardInterrupt:
             logger.debug("Process interrupted.")
@@ -277,132 +292,84 @@ async def scrape_url(url,semaphore,search = ""):
         #print("{" + "\n".join("{!r}: {!r},".format(k, v) for k, v in data.items()) + "}")
         #the 'demopage.asp' prints all HTTP Headers
         #ADD COMMENTS TO DATABASE
-        try:
-            connection = mysql.connector.connect(**config)
-            #print(connection.total_changes)
-            cur = connection.cursor()
-            cur.execute("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
-            connection.start_transaction()
-            article = ( title, author, address_key[15:], last_mod,url)  # Ensure address_key is truncated correctly if needed
-            update_article = """
-                UPDATE article
-                SET title = %s,
-                    author = %s,
-                    post_id = %s,
-                    last_mod = %s
-                WHERE url = %s;
-            """
-            cur.execute(update_article,article)
-            
-
-
-            #print(connection.total_changes)
-            cur = connection.cursor()
-            '''
-            users = [
-                (user['id'], user['user_name'], user['reputation'].get('received_ranked_up', 0), user['reputation'].get('total', 0))
-                for user in chat['users'].values()
-            ]'''
-            users = list(map(lambda x: (x['id'],x['user_name'],x['reputation'].get('received_ranked_up',0),x['reputation'].get('total',0)),chat['users'].values()))
-            #print(chat['users'].values())
-            #print(type(chat['users'].values()))
-            insert_users = """
-                INSERT INTO user (id, user_name, received_ranked_up, total)
-                VALUES (%s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                user_name = VALUES(user_name),
-                received_ranked_up = VALUES(received_ranked_up),
-                total = VALUES(total);
-            """
-            insert_users_ignore = """
-                INSERT IGNORE INTO user (id, user_name, received_ranked_up, total)
-                VALUES (%s, %s, %s, %s);
-            """
-            cur.executemany(insert_users_ignore,users)
-            #connection.commit()
-            logger.debug(f'Users added: %d' % len(users)) 
-            #ADD comments
-            #from collections import Counter
-            comments = []
-            ids = set()
-
-            for comment in chat['comments']:
-                #TODO OPTIMZIE GET REPLIES
-                comment_data = get_replies(chat, ids, comment)
-                if comment_data:
-                    comments.extend(comment_data)
-            logger.debug(f"Comments formated")
-            #user_ids = [user[0] for user in users]
-            #print(comments)
-            #ids = list(map(lambda x:x[4],comments))
-            #print(Counter(ids))
-            #print(connection.total_changes)
-            #connection.execute("PRAGMA busy_timeout = 30000") 
-            insert_comments = """
-                INSERT INTO comment 
-                (post_id, root_comment, parent_id, depth, id, user_id, time, replies_count, ranks_up, ranks_down, rank_score, content, user_reputation, best_score) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                post_id = VALUES(post_id),
-                root_comment = VALUES(root_comment),
-                parent_id = VALUES(parent_id),
-                depth = VALUES(depth),
-                user_id = VALUES(user_id),
-                time = VALUES(time),
-                replies_count = VALUES(replies_count),
-                ranks_up = VALUES(ranks_up),
-                ranks_down = VALUES(ranks_down),
-                rank_score = VALUES(rank_score),
-                content = VALUES(content),
-                user_reputation = VALUES(user_reputation),
-                best_score = VALUES(best_score);
-                """
-            insert_comments_ignore = """
-                INSERT IGNORE INTO comment 
-                (post_id, root_comment, parent_id, depth, id, user_id, time, replies_count, ranks_up, ranks_down, rank_score, content, user_reputation, best_score) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-                """
-            #comment_ids = [comment[4] for comment in comments]
-            cur.executemany(insert_comments_ignore,comments)
-            '''
-            for comment in comments:
-                #print(comment)
-                logger.debug(f'{comment}')
-                cur.execute(insert_comments,comment)'''
-            connection.commit()
-            logger.info(f'Comments added: %d' % len(comments)) 
-        except mysql.connector.Error as err:
-            logger.error(f"Error: {err} on line {traceback.print_exc()}")
-            connection.rollback()
-        except Exception as e:
-            logger.error(f"Error: {e}")
-            traceback.print_exc()
-        finally:
-            if connection.is_connected():
-                connection.close()
-                logger.info(f'Connection closed for {url[24:]}')
-
-async def scrape_urls(urls):
+    update_article = """
+                        UPDATE article
+                        SET title = %s,
+                            author = %s,
+                            post_id = %s,
+                            last_mod = %s
+                        WHERE url = %s;
+                    """
+    insert_users_ignore = """
+                        INSERT IGNORE INTO user (id, user_name, received_ranked_up, total)
+                        VALUES (%s, %s, %s, %s);
+                    """
+    insert_comments_ignore = """
+                        INSERT IGNORE INTO comment 
+                        (post_id, root_comment, parent_id, depth, id, user_id, time, replies_count, ranks_up, ranks_down, rank_score, content, user_reputation, best_score) 
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    """
+    comments = []
+    ids = set()
+    article = (title, author, address_key[15:], last_mod, url)
+    users = list(map(lambda x: (x['id'], x['user_name'], x['reputation'].get('received_ranked_up', 0), x['reputation'].get('total', 0)), chat['users'].values()))
+    for comment in chat['comments']:
+        comment_data = get_replies(chat, ids, comment)
+        if comment_data:
+            comments.extend(comment_data)
+    
+    try:
+        #async with save_semaphore:
+        async with save_connection.acquire() as connection:
+            connection = await aiomysql.connect(**config)
+            async with connection.cursor() as cur:
+                await cur.execute("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
+                await connection.begin()
+                await cur.execute(update_article, article)
+                await cur.executemany(insert_users_ignore, users)
+                logger.debug(f'Users added: {len(users)}')
+                await cur.executemany(insert_comments_ignore, comments)
+                await connection.commit()
+                logger.info(f'Comments added: {len(comments)} \t {url[24:]}')
+                global successful_requests
+                successful_requests+=len(comments)
+    except aiomysql.Error as err:
+        logger.error(f"Error: {err} on line {traceback.print_exc()}")
+        await connection.rollback()
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        traceback.print_exc()
+    finally:
+        if 'connection' in locals():
+            connection.close()
+            logger.debug(f'Connection closed for {url[24:]}')
+async def scrape_urls(urls,concurrent_requests):
+    #Wrapper that split the urls into many processes to run async
     success_times = []
     error_times = []
     batch_size = 300
     tasks = []
-    semaphore = asyncio.Semaphore(1)  # Limit to 20 concurrent tasks
-    tasks = [scrape_url(url, semaphore) for url in urls]
+    get_semaphore = asyncio.Semaphore(concurrent_requests)  # Limit to 20 concurrent tasks
+    save_semaphore = asyncio.Semaphore(20)
+    save_connection = await aiomysql.create_pool(**config)
+    tasks = [scrape_url(url, get_semaphore,save_connection,save_semaphore) for url in urls]
+    
+    if TESTING:
+        monitor_task = asyncio.create_task(monitor_requests())
     await asyncio.gather(*tasks)
-
-
-# Example usage:
-
-
-
+    save_connection.close()
+    await save_connection.wait_closed()
+    if TESTING:
+        monitor_task.cancel()
 def main():
+    global successful_requests
     #urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos']
     #urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos', 'https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war', 'https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false']
     #urls = ['https://www.foxnews.com/politics/massachusetts-gov-healey-unveils-climate-blueprint-coastal-communities']
     
     # Establish connection to MySQL
-    count = 0
+    count = 6
+    default_async = 9
     old_urls_set = set()
     query = """
             SELECT url
@@ -411,9 +378,10 @@ def main():
             AND category = 'politics'
             AND scraped IS NULL
             ORDER BY RAND()
-            LIMIT 300;
+            LIMIT 500;
         """
     while True:
+        
         logger.info(f'{count} iteration of scraping urls')
         count += 1
         
@@ -427,8 +395,9 @@ def main():
         if len(urls) == 0:
             break
         logger.info(f'Got new {len(urls)} urls')
+        """
         if len(urls)<400:
-            query = """
+            query = 
                 SELECT url
                 FROM article
                 WHERE (YEAR(last_mod) IN (2019, 2020, 2021, 2022, 2023))
@@ -436,41 +405,48 @@ def main():
                 ORDER BY RAND()
                 LIMIT 1;
             """
-        '''
-        new_urls_set = set(urls)
-        
-        intersection_count = len(new_urls_set.intersection(old_urls_set))
-        total_old_urls = len(old_urls_set)
-        
-        if total_old_urls > 0 and intersection_count / total_old_urls > 0.6:
-            logger.info("More than 60% of old URLs are in the new set. Terminating the loop.") #Prevent running forever
-            break
-        '''
         cur.close()
         connection.close()
         logger.info(f'Checked for overlap, starting async scrapping now')
-        asyncio.run(scrape_urls(urls))
-        break
-    
-    
+        start_time = time.time()
+        if TESTING:
+            asyncio.run(scrape_urls(urls,count))
+        else:
+            asyncio.run(scrape_urls(urls,default_async))
+        if TESTING:
+            elapsed_time = time.time() - start_time
+            log_message = f'| Successfully processed | {successful_requests} | in | {elapsed_time:.2f} | seconds with | {count} | concurrent requests |'
+            table_logger.info(log_message)
+            successful_requests = 0  # Reset the counter
+            time.sleep(5)
+async def monitor_requests():
+    global successful_requests
+    while True:
+        await asyncio.sleep(60)  # Wait for 1 minute
+        elapsed_time = time.time() - start_time
+        logger.info(f"Successful requests: {successful_requests}")
 
-# Print the profiling results
-
-import cProfile
-import pstats
-from io import StringIO
 def speedTest(func):
     profiler = cProfile.Profile()
     profiler.enable()
-    func()
-    profiler.disable()
-    stats = StringIO()
-    stats_print = pstats.Stats(profiler, stream=stats).sort_stats('cumulative')
-    stats_print.print_stats()
-    logger.info(stats.getvalue())
+    try:
+        func()
+    except:
+        pass
+    finally:
+        profiler.disable()
+        
+        stats = StringIO()
+        stats_print = pstats.Stats(profiler, stream=stats).sort_stats('cumulative')
+        stats_print.print_stats()
+        logger.info(stats.getvalue())
 if __name__ == "__main__":
-    #main()
-    speedTest(main)
+
+    if PROFILING:
+        speedTest(main)
+    else:
+        main()
+    
 
 
 '''
