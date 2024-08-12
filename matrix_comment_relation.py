@@ -54,21 +54,21 @@ if not os.path.exists(data_folder):
 # Paths for saving files
 matrix_save_path = os.path.join(data_folder, 'word_matrix.npy')
 word_to_index_save_path = os.path.join(data_folder, 'word_to_index.json')
-offset_file = os.path.join(data_folder, 'offset.txt')
+count_file = os.path.join(data_folder, 'count.txt')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def load_offset(offset_file):
-    if os.path.exists(offset_file):
-        with open(offset_file, 'r') as f:
+def load_count(count_file):
+    if os.path.exists(count_file):
+        with open(count_file, 'r') as f:
             return int(f.read().strip())
     return 0
 
-def save_offset(offset, offset_file):
-    with open(offset_file, 'w') as f:
-        f.write(str(offset))
+def save_count(count, count_file):
+    with open(count_file, 'w') as f:
+        f.write(str(count))
 
 def save_data(word_matrix, word_to_index):
     # Save the sparse matrix
@@ -110,13 +110,30 @@ def get_cached_indices(num_words):
 # Precompute index pairs for sizes up to 40
 precompute_indices(40)
 
+def load_last_seen_id(last_seen_id_file):
+    try:
+        with open(last_seen_id_file, 'r') as f:
+            return json.load(f)
+    except (EOFError, IOError, json.JSONDecodeError) as e:
+        logging.error(f"Error loading last seen ID file: {e}. Starting with no last seen ID.")
+        return None
+
+def save_last_seen_id(last_seen_id, last_seen_id_file):
+    try:
+        with open(last_seen_id_file, 'w') as f:
+            json.dump(last_seen_id, f)
+    except Exception as e:
+        logging.error(f"Error saving last seen ID file: {e}")
+
+
 def process_batches(batch_size=100000, save_interval=5):
-    offset = load_offset(offset_file)
+    last_seen_id_file = 'last_seen_id.json'  # File to store the last seen ID
+    last_seen_id = load_last_seen_id(last_seen_id_file)
     
     # Create the mappings
     word_to_index = {}
     next_index = 0
-    
+    count = 0
     # Initialize with a small matrix
     matrix_size = 1000000
     word_matrix = csr_matrix((matrix_size, matrix_size), dtype=np.int32)  # Initialize with CSR format
@@ -127,17 +144,15 @@ def process_batches(batch_size=100000, save_interval=5):
             word_matrix = load_npz(matrix_save_path).tocsr()  # Convert to CSR format for ease of use
             with open(word_to_index_save_path, 'r') as f:
                 word_to_index = json.load(f)
-        else:
-            x = 0/0
+            next_index = max(word_to_index.values())
     except Exception as e:
-        logging.error(f"Error loading matrix file: {e}. Starting with an empty matrix.")
+        logging.error(f"Error loading matrix or word_to_index file: {e}. Starting with an empty matrix and index.")
         word_matrix = csr_matrix((matrix_size, matrix_size), dtype=np.int32)
         word_to_index = {}
-        offset = 0
-        save_offset(0,offset_file)
-        
+        last_seen_id = None
+        save_last_seen_id(last_seen_id, last_seen_id_file)
     
-    total_processed = offset
+    total_processed = 0
     start_time = time.time()
     
     batch_counter = 0
@@ -146,30 +161,33 @@ def process_batches(batch_size=100000, save_interval=5):
         while True:
             batch_start_time = time.time()
             
-            # Query batch of comments
-            query = text(f"SELECT content FROM comment LIMIT {batch_size} OFFSET {offset}")
-            batch = connection.execute(query).fetchall()
+            # Query batch of comments using keyset pagination
+            if last_seen_id is None:
+                query = text(f"SELECT id, content FROM comment ORDER BY id ASC LIMIT {batch_size}")
+            else:
+                query = text(f"SELECT id, content FROM comment WHERE id > :last_seen_id ORDER BY id ASC LIMIT {batch_size}")
+            
+            batch = connection.execute(query, {'last_seen_id': last_seen_id} if last_seen_id else {}).fetchall()
             
             if not batch:
                 break  # No more comments to process
             
+            last_seen_id = batch[-1][0]  # Update last_seen_id for the next batch
+            
             # Processing comments
             process_start_time = time.time()
-            rows_list = np.empty(batch_size, dtype=object)
-            cols_list = np.empty(batch_size, dtype=object)
+            rows_list = []
+            cols_list = []
             
-            for batch_num, row in enumerate(batch):
-                comment = clean_comment(row[0])  # Access 'content' using index 0
+            for row in batch:
+                comment = clean_comment(row[1])
                 words = comment.split()
                 filtered_words = filter_stop_words(words)
                 
                 # Map words to indices and handle new words
                 unique_words = set(filtered_words)
-                #if not unique_words:
-                #    continue
-                
-                indices = np.empty(len(unique_words), dtype=int)
-                for i, word in enumerate(unique_words):
+                indices = []
+                for word in unique_words:
                     if word not in word_to_index:
                         word_to_index[word] = next_index
                         next_index += 1
@@ -180,46 +198,56 @@ def process_batches(batch_size=100000, save_interval=5):
                             new_matrix[:word_matrix.shape[0], :word_matrix.shape[1]] = word_matrix
                             word_matrix = new_matrix
                             logging.info(f"Expanded matrix size to {new_size} x {new_size}.")
-                    indices[i] = word_to_index[word]
+                    indices.append(word_to_index[word])
                 
                 # Generate index pairs for the lower triangular part of the matrix
+                indices = np.array(indices)
                 sort_indices = np.sort(indices)
                 i_indices, j_indices = get_cached_indices(indices.size)
 
                 # Populate the rows and cols lists
-                rows_list[batch_num] = sort_indices[i_indices]
-                cols_list[batch_num] = sort_indices[j_indices]
-
+                rows_list.append(sort_indices[i_indices])
+                cols_list.append(sort_indices[j_indices])
+            
             # Apply updates to the matrix
             rows = np.concatenate(rows_list)
             cols = np.concatenate(cols_list)
             word_matrix = word_matrix + csr_matrix((np.ones(len(rows), dtype=np.int32), (rows, cols)), shape=word_matrix.shape, dtype=np.int32)
             
             process_end_time = time.time()
-            
+            count+=batch_size
             # Save data every `save_interval` batches
             batch_counter += 1
             if batch_counter >= save_interval:
                 save_start_time = time.time()
                 save_data(word_matrix, word_to_index)
+                save_count(count,count_file)
+                save_last_seen_id(last_seen_id, last_seen_id_file)
                 save_end_time = time.time()
                 batch_counter = 0
                 logging.info(f"Data saved after {save_interval} batches.")
                 logging.info(f"Data saving time: {save_end_time - save_start_time:.2f} seconds.")
             
-            offset += batch_size
-            total_processed += len(batch)
-            save_offset(offset, offset_file)
+            
             
             batch_end_time = time.time()
-            logging.info(f"Processed {total_processed} comments so far.")
+            logging.info(f"Processed {count} comments so far.")
             logging.info(f"Batch processing time: {batch_end_time - batch_start_time:.2f} seconds.")
             logging.info(f"Data processing time: {process_end_time - process_start_time:.2f} seconds.")
     
     # Final save if needed
     if batch_counter > 0:
         save_data(word_matrix, word_to_index)
-        save_offset(offset, offset_file)
+        save_last_seen_id(last_seen_id, last_seen_id_file)
+    
+    end_time = time.time()
+    logging.info(f"Total processing time: {end_time - start_time:.2f} seconds.")
+    logging.info("Processing completed.")
+    
+    # Final save if needed
+    if batch_counter > 0:
+        save_data(word_matrix, word_to_index)
+        save_count(count, count_file)
     
     end_time = time.time()
     logging.info(f"Total processing time: {end_time - start_time:.2f} seconds.")
