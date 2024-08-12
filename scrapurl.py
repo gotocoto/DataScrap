@@ -47,7 +47,7 @@ if clear_log:
     print("Log File cleared")
 
 logger = logging.getLogger('my_logger')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 TESTING =False
 if '--testing' in sys.argv:
     TESTING = True
@@ -58,16 +58,16 @@ if '--profiling' in sys.argv:
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
 # Create a StreamHandler for console output (stdout)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(formatter)
+#console_handler = logging.StreamHandler()
+#console_handler.setLevel(logging.INFO)
+#console_handler.setFormatter(formatter)
 # Create a FileHandler for file output
 file_handler = logging.FileHandler(log_file_path)
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 
 # Add the handlers to the logger
-logger.addHandler(console_handler)
+#logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
 if(TESTING):
@@ -81,10 +81,12 @@ if(TESTING):
     file_handler.setFormatter(formatter)
     table_logger.addHandler(file_handler)
 with open('db_config.json', 'r') as config_file:
-    config = orjson.load(config_file)
+    config = json.load(config_file)
 
 def to_comment(chat,entry):
         try:
+
+            #if (int(entry['rank'].get('ranks_down', 0))<0): print(entry['rank'].get('ranks_down', 0))
             return [
                 chat['post_id'][21:],
                 entry['root_comment'].rpartition('_')[-1],
@@ -163,67 +165,65 @@ def get_replies(chat,ids,comment):
             logger.debug(f"Unhandled exception in get_replies: {e}")
 
         return replies
-async def make_request(url, headers, json_data,attempt = 1):
+async def make_request(session, url, headers, json_data,attempt = 1):
     #start_time = time.time()
-    #global successful_requests
+    global successful_requests
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, json=json_data, timeout=1) as response:
-                if response.status == 200:
-                    #success_time.append(elapsed_time)
-                    #successful_requests += 1
-                    response_json = await response.read()
-                    return orjson.loads(response_json)
-                    #return await response.json()
-                elif response.status == 403:
-                    logger.debug(f"Too many request made. Trying again: Attempt {attempt} ")
-                    await asyncio.sleep(attempt)
-                    
-                elif response.status == 104:
-                    logger.debug("Connection reset by peer. Waiting for a second before retrying...")
-                    await asyncio.sleep(attempt)
-                else:
-                    logger.debug(f"Error in request. Status code: {response.status}")
-                if(attempt>10):
-                    logger.debug(f"Unable to process request, try 10 times and failed")
-                    return None
-                attempt+=1
-                return await make_request(url, headers, json_data,attempt=attempt)  # Retry
+        async with session.post(url, headers=headers, json=json_data, timeout=1) as response:
+            if response.status == 200:
+                #success_time.append(elapsed_time)
+                successful_requests += 1
+                response_json = await response.read()
+                return orjson.loads(response_json)
+                #return await response.json()
+            elif response.status == 403:
+                logger.debug(f"Too many request made. Trying again: Attempt {attempt} ")
+                await asyncio.sleep(attempt)
+                
+            elif response.status == 104:
+                logger.debug("Connection reset by peer. Waiting for a second before retrying...")
+                await asyncio.sleep(attempt)
+            else:
+                logger.debug(f"Error in request. Status code: {response.status}")
+            if(attempt>10):
+                logger.debug(f"Unable to process request, try 10 times and failed")
+                return None
+            attempt+=1
+            return await make_request(session,url, headers, json_data,attempt=attempt)  # Retry
 
     except TimeoutError as e:
         logger.debug(f"Request took to long to respond. Trying again.. {json_data} {headers}")
         await asyncio.sleep(attempt)
-        return await make_request(url, headers, json_data,attempt=attempt+1)
-async def async_get(url, timeout=3, sleep=1):
-    async with aiohttp.ClientSession() as session:
-        for _ in range(5):
-            try:
-                async with session.get(url, timeout=timeout) as response:
-                    if response.status == 200:  # Check if response status is OK
-                        return await response.text()
-                    elif response.status == 403:  # Retry on 403 Forbidden
-                        logger.debug(f'Received 403 Forbidden for {url}, retrying...')
-                    elif response.status >= 500:  # Retry on server errors
-                        logger.debug(f'Server error: {response.reason}')
-            except aiohttp.ClientResponseError as cre:
-                logger.debug(f'Retry {url} due to ClientResponseError: {cre}')
-            except aiohttp.ClientError as ce:
-                logger.debug(f'Retry {url} due to ClientError: {ce}')
-            except asyncio.TimeoutError:
-                logger.debug(f'Retry {url} due to TimeoutError')
-            await asyncio.sleep(sleep)
-            sleep *=2  # Exponential backoff
+        return await make_request(session,url, headers, json_data,attempt=attempt+1)
+async def get_article(session,url, timeout=3, sleep=1):
+    for _ in range(5):
+        try:
+            async with session.get(url, timeout=timeout) as response:
+                if response.status == 200:  # Check if response status is OK
+                    return await response.text()
+                elif response.status == 403:  # Retry on 403 Forbidden
+                    logger.debug(f'Received 403 Forbidden for {url}, retrying...')
+                elif response.status >= 500:  # Retry on server errors
+                    logger.debug(f'Server error: {response.reason}')
+        except aiohttp.ClientResponseError as cre:
+            logger.debug(f'Retry {url} due to ClientResponseError: {cre}')
+        except aiohttp.ClientError as ce:
+            logger.debug(f'Retry {url} due to ClientError: {ce}')
+        except asyncio.TimeoutError:
+            logger.debug(f'Retry {url} due to TimeoutError')
+        await asyncio.sleep(sleep)
+        sleep *=2  # Exponential backoff
 
     logger.debug(RuntimeError(f'Failed to fetch {url} after multiple attempts'))
     return None
-async def scrape_url(url,get_semaphore,save_connection,save_semaphore,search = ""):
+async def scrape_url(session,url,get_semaphore,save_connection,save_semaphore):
     async with get_semaphore:
         chat = {}
         logger.info(f"Scrapping url: %s" % url)
         try:
-            html = await async_get(url)
+            html = await get_article(session,url)
             if html:
-                soup = BeautifulSoup(html, 'html.parser')
+                soup = BeautifulSoup(html, 'lxml')
                 address_key = soup.head.find(attrs={"name": "dc.identifier"})['content']
                 title = soup.head.find(attrs={"name": "dc.title"})['content']
                 author = soup.head.find(attrs={"name": "dc.creator"})['content']
@@ -253,7 +253,7 @@ async def scrape_url(url,get_semaphore,save_connection,save_semaphore,search = "
         try:
             request_count = 1
             logger.debug(f"Request: {request_count} for {url[24:]}")
-            response_json = await make_request(api_url, headers, json_data)
+            response_json = await make_request(session,api_url, headers, json_data)
 
             if not response_json:
                 logger.error(f'Error in first comment request. Failed for url {url}')
@@ -269,7 +269,7 @@ async def scrape_url(url,get_semaphore,save_connection,save_semaphore,search = "
                 json_data['offset'] = offset
                 request_count += 1
                 logger.debug(f"Request: {request_count} for {url[24:]}")
-                response_json = await make_request(api_url, headers, json_data)
+                response_json = await make_request(session,api_url, headers, json_data)
 
                 if not response_json:
                     logger.error(f"Error in inner request. Failed for url {url}")
@@ -285,7 +285,7 @@ async def scrape_url(url,get_semaphore,save_connection,save_semaphore,search = "
         except KeyboardInterrupt:
             logger.debug("Process interrupted.")
         except Exception as e:
-            logger.error(f"Unhandled exception in scrape url: {e}")
+            logger.error(f"Unhandled exception in scrape url: {e}\n{traceback.print_exc()}")
             logger.debug(e)
             return None  # Return None to handle the error upstream
         #print(response_json)
@@ -331,10 +331,10 @@ async def scrape_url(url,get_semaphore,save_connection,save_semaphore,search = "
                 await cur.executemany(insert_comments_ignore, comments)
                 await connection.commit()
                 logger.info(f'Comments added: {len(comments)} \t {url[24:]}')
-                global successful_requests
-                successful_requests+=len(comments)
+                #global successful_requests
+                #successful_requests+=len(comments)
     except aiomysql.Error as err:
-        logger.error(f"Error: {err} on line {traceback.print_exc()}")
+        logger.error(f"Error: {err} on url {url}")
         await connection.rollback()
     except Exception as e:
         logger.error(f"Error: {e}")
@@ -352,36 +352,38 @@ async def scrape_urls(urls,concurrent_requests):
     get_semaphore = asyncio.Semaphore(concurrent_requests)  # Limit to 20 concurrent tasks
     save_semaphore = asyncio.Semaphore(20)
     save_connection = await aiomysql.create_pool(**config)
-    tasks = [scrape_url(url, get_semaphore,save_connection,save_semaphore) for url in urls]
-    
-    if TESTING:
-        monitor_task = asyncio.create_task(monitor_requests())
-    await asyncio.gather(*tasks)
-    save_connection.close()
-    await save_connection.wait_closed()
-    if TESTING:
-        monitor_task.cancel()
+    async with aiohttp.ClientSession() as session:
+        tasks = [scrape_url(session, url, get_semaphore, save_connection, save_semaphore) for url in urls]
+        if TESTING:
+            pass
+            #monitor_task = asyncio.create_task(monitor_requests())
+        await asyncio.gather(*tasks)
+        save_connection.close()
+        await save_connection.wait_closed()
+        if TESTING:
+            pass
+            #monitor_task.cancel()
 def main():
     global successful_requests
     #urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos']
     #urls = ['https://www.foxnews.com/politics/global-elites-took-150-private-jets-fight-climate-change-davos', 'https://www.foxnews.com/politics/biden-says-climate-change-is-bigger-threat-humanity-nuclear-war', 'https://www.foxnews.com/politics/al-gore-history-climate-predictions-statements-proven-false']
     #urls = ['https://www.foxnews.com/politics/massachusetts-gov-healey-unveils-climate-blueprint-coastal-communities']
-    
     # Establish connection to MySQL
-    count = 6
-    default_async = 9
+    total_scraped = 0
+    count = 24
+    default_async = 32
     old_urls_set = set()
     query = """
-            SELECT url
-            FROM article
-            WHERE (YEAR(last_mod) IN (2019, 2020, 2021, 2022, 2023))
-            AND category = 'politics'
-            AND scraped IS NULL
-            ORDER BY RAND()
-            LIMIT 500;
-        """
+                SELECT url
+                FROM article
+                WHERE (YEAR(last_mod) IN (2018,2024))
+                AND scraped IS NULL
+                ORDER BY RAND()
+                LIMIT 500; """
+    print("SCRAP URL has started running starting the scrapping process")
+    newQuery =False
     while True:
-        
+
         logger.info(f'{count} iteration of scraping urls')
         count += 1
         
@@ -395,16 +397,13 @@ def main():
         if len(urls) == 0:
             break
         logger.info(f'Got new {len(urls)} urls')
-        """
-        if len(urls)<400:
-            query = 
-                SELECT url
-                FROM article
-                WHERE (YEAR(last_mod) IN (2019, 2020, 2021, 2022, 2023))
-                AND scraped IS NULL
-                ORDER BY RAND()
-                LIMIT 1;
-            """
+        if len(urls)<499:
+            print("Querry 2018 and 2024")
+            
+            if(newQuery):
+                break;
+            else: 
+                newQuery=True
         cur.close()
         connection.close()
         logger.info(f'Checked for overlap, starting async scrapping now')
@@ -419,6 +418,8 @@ def main():
             table_logger.info(log_message)
             successful_requests = 0  # Reset the counter
             time.sleep(5)
+        total_scraped+=len(urls)
+        print(f"Successfully Scrapped {total_scraped} urls")
 async def monitor_requests():
     global successful_requests
     while True:

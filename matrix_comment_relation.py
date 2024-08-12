@@ -140,11 +140,12 @@ def process_batches(batch_size=100000, save_interval=5):
     
     # Load existing matrix and word_to_index if they exist
     try:
-        if os.path.exists(matrix_save_path):
-            word_matrix = load_npz(matrix_save_path).tocsr()  # Convert to CSR format for ease of use
-            with open(word_to_index_save_path, 'r') as f:
-                word_to_index = json.load(f)
-            next_index = max(word_to_index.values())
+        if not os.path.exists(matrix_save_path) : raise ValueError("No file to run")
+        word_matrix = load_npz(matrix_save_path).tocsr()  # Convert to CSR format for ease of use
+        with open(word_to_index_save_path, 'r') as f:
+            word_to_index = json.load(f)
+        next_index = max(word_to_index.values())
+        count = load_count(count_file)
     except Exception as e:
         logging.error(f"Error loading matrix or word_to_index file: {e}. Starting with an empty matrix and index.")
         word_matrix = csr_matrix((matrix_size, matrix_size), dtype=np.int32)
@@ -257,7 +258,7 @@ def process_batches(batch_size=100000, save_interval=5):
 
 def profile_code():
     # Your function call to process_batches
-    process_batches(batch_size=100000, save_interval=10)
+    process_batches(batch_size=100000, save_interval=30)
 profile_code()
 '''
 # Set up profiling
