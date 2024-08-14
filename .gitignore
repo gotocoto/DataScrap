@@ -11,5 +11,9 @@ scrapurl.log
 sitemap_parser.log
 myenv/
 db_config.json
+<<<<<<< HEAD
 *.log
 /anaylze/data
+=======
+*.log
+>>>>>>> main

@@ -27,7 +27,11 @@ CREATE TABLE `article` (
 
 ```
 
+<<<<<<< HEAD
 ### Categories Found
+=======
+### Category
+>>>>>>> main
 ```sql
 SELECT count(category),Category FROM Articles GROUP BY Category;
 ```
@@ -74,7 +78,11 @@ SET scraped=CURDATE(),title=?,author=?
 WHERE url=?;
 ```
 
+<<<<<<< HEAD
 ## user table
+=======
+## User
+>>>>>>> main
 | Column           | Data Type   | Constraints | Description                           |
 |------------------|-------------|-------------|---------------------------------------|
 | id               | VARCHAR(255)| PRIMARY KEY | Unique identifier for the user        |
@@ -96,6 +104,7 @@ CREATE TABLE user (
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 ```
+<<<<<<< HEAD
 ## comment table
 
 | Column Name       | Data Type      | Nullable | Description                                           |
@@ -114,6 +123,26 @@ CREATE TABLE user (
 | content           | TEXT           | No       | The textual content of the comment                   |
 | user_reputation   | INT UNSIGNED   | No       | The reputation score of the commenting user          |
 | best_score        | INT UNSIGNED   | No       | The best score achieved by the comment               |
+=======
+## Comment
+| Column Name   | Data Type      | Nullable | Description                                           |
+|---------------|----------------|----------|-------------------------------------------------------|
+| post_id       | CHAR(36)       | No       | The ID of the related article                         |
+| root_comment  | CHAR(27)       | No       | The ID of the root comment (if applicable)            |
+| parent_id     | CHAR(27)       | Yes      | The ID of the parent comment (if applicable)          |
+| depth         | INTEGER        | No       | The depth level of the comment in the thread          |
+| id            | CHAR(27)       | No       | The unique identifier for the comment (Primary Key)   |
+| user_id       | CHAR(14)       | No       | The ID of the user who posted the comment             |
+| time          | TIMESTAMP      | No       | The timestamp of when the comment was posted          |
+| replies_count | INTEGER        | No       | The number of replies to this comment                 |
+| ranks_up      | INTEGER        | No       | The number of upvotes for the comment                 |
+| ranks_down    | INTEGER        | No       | The number of downvotes for the comment               |
+| rank_score    | INTEGER        | No       | The ranking score of the comment                      |
+| content       | TEXT           | No       | The textual content of the comment                    |
+| user_reputation| INTEGER       | No       | The reputation score of the commenting user           |
+| best_score    | INTEGER        | No       | The best score achieved by the comment                |
+
+>>>>>>> main
 
 
 ```sql
@@ -135,7 +164,9 @@ CREATE TABLE comment (
     FOREIGN KEY (post_id) REFERENCES article(post_id) ON DELETE CASCADE ON UPDATE NO ACTION,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
+
 ```
+<<<<<<< HEAD
 <!--
     CONSTRAINT fk_parent_id FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT fk_root_comment FOREIGN KEY (root_comment) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION
@@ -176,3 +207,8 @@ CREATE TABLE word_matrix (
 );
 ```
 
+=======
+,
+    --CONSTRAINT fk_parent_id FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    --CONSTRAINT fk_root_comment FOREIGN KEY (root_comment) REFERENCES comment(id) ON DELETE CASCADE ON UPDATE NO ACTION
+>>>>>>> main
