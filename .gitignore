@@ -12,3 +12,4 @@ sitemap_parser.log
 myenv/
 db_config.json
 *.log
+/anaylze/data
