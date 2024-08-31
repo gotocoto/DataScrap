@@ -14,3 +14,4 @@ db_config.json
 *.log
 /anaylze/data
 data/word_pairs.csv
+temp_word_pairs.csv
