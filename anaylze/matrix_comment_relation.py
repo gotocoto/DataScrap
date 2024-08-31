@@ -10,8 +10,9 @@ import time
 import cProfile
 import pstats
 import io
-from scipy.sparse import dok_matrix, save_npz, load_npz, csr_matrix, coo_matrix
-from collections import defaultdict
+from scipy.sparse import csr_matrix
+import csv
+
 # Load database credentials
 with open('db_config.json') as f:
     db_config = json.load(f)
@@ -28,37 +29,25 @@ def clean_comment(text):
 
 # List of trivial words (stop words)
 stop_words = set([
-    'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your',
-    'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her',
-    'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs',
-    'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those',
-    'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
-    'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if',
-    'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with',
-    'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after',
-    'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over',
-    'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where',
-    'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other',
-    'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than',
-    'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now'
+    # (Stop words list)
 ])
 
 def filter_stop_words(words):
     return [word for word in words if word not in stop_words and len(word) <= 40]
 
-# Create the data folder if it doesn't exist
+# Paths for saving files
 data_folder = 'data'
 if not os.path.exists(data_folder):
     os.makedirs(data_folder)
 
-# Paths for saving files
 matrix_save_path = os.path.join(data_folder, 'word_matrix.npy')
 word_to_index_save_path = os.path.join(data_folder, 'word_to_index.json')
 count_file = os.path.join(data_folder, 'count.txt')
+csv_file_path = "/var/lib/mysql-files/word_pairs.csv"
+#os.path.join(data_folder, 'word_pairs.csv')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 def load_count(count_file):
     if os.path.exists(count_file):
@@ -71,44 +60,8 @@ def save_count(count, count_file):
         f.write(str(count))
 
 def save_data(word_matrix, word_to_index):
-    # Save the sparse matrix
-    try:
-        temp_matrix_path = matrix_save_path + '.tmp'
-        save_npz(temp_matrix_path, word_matrix.tocsr())
-        if os.path.exists(matrix_save_path):
-            os.remove(matrix_save_path)
-        os.rename(temp_matrix_path+'.npz', matrix_save_path)
-    except Exception as e:
-        logging.error(f"Error saving matrix file: {e}")
-    
-    # Save the word_to_index
-    try:
-        temp_word_to_index_path = word_to_index_save_path + '.tmp'
-        with open(temp_word_to_index_path, 'w') as f:
-            json.dump(word_to_index, f)
-        if os.path.exists(word_to_index_save_path):
-            os.remove(word_to_index_save_path)
-        os.rename(temp_word_to_index_path, word_to_index_save_path)
-    except Exception as e:
-        logging.error(f"Error saving word_to_index file: {e}")
-
-index_cache = {}
-
-def precompute_indices(max_size=40):
-    """ Precompute index pairs for matrix sizes from 1 to max_size and cache them. """
-    for size in range(1, max_size + 1):
-        i_indices, j_indices = np.tril_indices(size,0)
-        index_cache[size] = (i_indices, j_indices)
-
-def get_cached_indices(num_words):
-    """ Retrieve precomputed index pairs from the cache. """
-    if num_words in index_cache:
-        return index_cache[num_words]
-    else:
-        return np.tril_indices(num_words, 0)
-
-# Precompute index pairs for sizes up to 40
-precompute_indices(40)
+    # (Save sparse matrix and word_to_index)
+    pass
 
 def load_last_seen_id(last_seen_id_file):
     try:
@@ -124,24 +77,21 @@ def save_last_seen_id(last_seen_id, last_seen_id_file):
             json.dump(last_seen_id, f)
     except Exception as e:
         logging.error(f"Error saving last seen ID file: {e}")
-
-
+#@profile
 def process_batches(batch_size=100000, save_interval=5):
-    last_seen_id_file = 'last_seen_id.json'  # File to store the last seen ID
+    last_seen_id_file = 'last_seen_id.json'
     last_seen_id = load_last_seen_id(last_seen_id_file)
     
-    # Create the mappings
     word_to_index = {}
     next_index = 0
     count = 0
-    # Initialize with a small matrix
     matrix_size = 1000000
-    word_matrix = csr_matrix((matrix_size, matrix_size), dtype=np.int32)  # Initialize with CSR format
+    word_matrix = csr_matrix((matrix_size, matrix_size), dtype=np.int32)
     
-    # Load existing matrix and word_to_index if they exist
     try:
-        if not os.path.exists(matrix_save_path) : raise ValueError("No file to run")
-        word_matrix = load_npz(matrix_save_path).tocsr()  # Convert to CSR format for ease of use
+        if not os.path.exists(matrix_save_path):
+            raise ValueError("No file to run")
+        word_matrix = load_npz(matrix_save_path).tocsr()
         with open(word_to_index_save_path, 'r') as f:
             word_to_index = json.load(f)
         next_index = max(word_to_index.values())
@@ -159,74 +109,74 @@ def process_batches(batch_size=100000, save_interval=5):
     batch_counter = 0
     
     with engine.connect() as connection:
+        start_time = time.time()
+        last_seen_id = "0"
+
         while True:
             batch_start_time = time.time()
             
-            # Query batch of comments using keyset pagination
-            if last_seen_id is None:
-                query = text(f"SELECT id, content FROM comment ORDER BY id ASC LIMIT {batch_size}")
-            else:
-                query = text(f"SELECT id, content FROM comment WHERE id > :last_seen_id ORDER BY id ASC LIMIT {batch_size}")
-            
-            batch = connection.execute(query, {'last_seen_id': last_seen_id} if last_seen_id else {}).fetchall()
-            
+            query = text("""
+                SELECT id, content
+                FROM comment
+                WHERE id > :last_seen_id
+                ORDER BY id ASC
+                LIMIT :batch_size
+            """)
+            batch = connection.execute(query, {'last_seen_id': last_seen_id, 'batch_size': batch_size}).fetchall()
+
             if not batch:
-                break  # No more comments to process
-            last_seen_id = batch[-1][0]  # Update last_seen_id for the next batch
+                break
+            
+            last_seen_id = batch[-1][0]
+
             word_matrix = defaultdict(Counter)
-            # Processing comments
-            process_start_time = time.time()
             for row in batch:
                 comment = clean_comment(row[1])
                 words = comment.split()
                 filtered_words = filter_stop_words(words)
-                
-                # Map words to indices and handle new words
                 unique_words = set(filtered_words)
-                for i, word1 in enumerate(unique_words):
-                    for j, word2 in enumerate(unique_words):
-                        word_matrix[word1][word2] += 1
-            
-            word_pairs = []
-            '''
-            for word1 in word_matrix:
-                for word2 in word_matrix[word1]:
-                    count = word_matrix[word1][word2]
-                    if count > 0:
-                        word_pairs.append((word1, word2, count))'''
-            
-            word_pairs = [(word1,  word2,  count) for word1 in word_matrix for word2, count in word_matrix[word1].items() if count > 0]
-            
-            try:
-                # Step 1: Insert unique words into word_lookup table
                 
-                # Insert words into word_lookup table
+                for word1 in unique_words:
+                    for word2 in unique_words:
+                        word_matrix[word1][word2] += 1
+
+            word_pairs = [(word1, word2, count) for word1 in word_matrix for word2, count in word_matrix[word1].items() if count > 0]
+            process_start_time = time.time()
+            try:
+                # Insert unique words into word_lookup table
                 insert_word_query = text("""
                     INSERT IGNORE INTO word_lookup (word)
                     VALUES (:word);
                 """)
-                #print(list(word_matrix.keys()))
-                insert_word_data = [{'word': word} for word in list(word_matrix.keys())]
+                insert_word_data = [{'word': word} for word in word_matrix.keys()]
                 connection.execute(insert_word_query, insert_word_data)
                 
-                # Create a temporary table
+                # Export word pairs to CSV
+                with open(csv_file_path, 'w', newline='') as csvfile:
+                    csv_writer = csv.writer(csvfile)
+                    for word1, word2, count in word_pairs:
+                        csv_writer.writerow([word1, word2, count])
+                
+                # Use LOAD DATA INFILE to load the CSV into the temporary table
                 connection.execute(text("""
                     CREATE TEMPORARY TABLE temp_word_pairs (
                         word1 VARCHAR(40),
                         word2 VARCHAR(40),
-                        count INT
+                        count INT,
+                        INDEX idx_word1 (word1),  -- Index for the `word1` column to speed up JOIN with word_lookup
+                        INDEX idx_word2 (word2)   -- Index for the `word2` column to speed up JOIN with word_lookup
                     );
                 """))
-                
-                # Insert data into the temporary table
-                insert_query = text("""
-                    INSERT INTO temp_word_pairs (word1, word2, count)
-                    VALUES (:word1, :word2, :count)
-                """)
-                insert_data = [{'word1': word1, 'word2': word2, 'count': count} for word1, word2, count in word_pairs]
-                connection.execute(insert_query, insert_data)
-                
-                # Insert or update in the main table
+
+                connection.execute(text(f"""
+                    LOAD DATA INFILE '{csv_file_path}'
+                    INTO TABLE temp_word_pairs
+                    FIELDS TERMINATED BY ',' 
+                    LINES TERMINATED BY '\n'
+                    (word1, word2, count);
+                """))
+
+                # Upsert into the main table
                 upsert_query = text("""
                     INSERT INTO word_matrix (id1, id2, count)
                     SELECT
@@ -247,67 +197,49 @@ def process_batches(batch_size=100000, save_interval=5):
                 # Drop the temporary table
                 connection.execute(text("DROP TEMPORARY TABLE temp_word_pairs;"))
 
+                connection.commit()
+
             except Exception as e:
-                print(f"Error: {e}")
-
-
-
-
+                logging.error(f"Error: {e}")
+                connection.rollback()
 
             process_end_time = time.time()
-            count+=batch_size
-            # Save data every `save_interval` batches
+            count += len(batch)
             batch_counter += 1
+            
             if batch_counter >= save_interval:
-                save_start_time = time.time()
+                break
                 save_data(word_matrix, word_to_index)
-                save_count(count,count_file)
+                save_count(count, count_file)
                 save_last_seen_id(last_seen_id, last_seen_id_file)
-                save_end_time = time.time()
                 batch_counter = 0
                 logging.info(f"Data saved after {save_interval} batches.")
-                logging.info(f"Data saving time: {save_end_time - save_start_time:.2f} seconds.")
-            
-            
             
             batch_end_time = time.time()
             logging.info(f"Processed {count} comments so far.")
             logging.info(f"Batch processing time: {batch_end_time - batch_start_time:.2f} seconds.")
             logging.info(f"Data processing time: {process_end_time - process_start_time:.2f} seconds.")
-    
-    # Final save if needed
-    if batch_counter > 0:
-        save_data(word_matrix, word_to_index)
-        save_last_seen_id(last_seen_id, last_seen_id_file)
-    
-    end_time = time.time()
-    logging.info(f"Total processing time: {end_time - start_time:.2f} seconds.")
-    logging.info("Processing completed.")
-    
-    # Final save if needed
-    if batch_counter > 0:
+        
         save_data(word_matrix, word_to_index)
         save_count(count, count_file)
-    
-    end_time = time.time()
-    logging.info(f"Total processing time: {end_time - start_time:.2f} seconds.")
-    logging.info("Processing completed.")
-
-
+        save_last_seen_id(last_seen_id, last_seen_id_file)
+        
+        end_time = time.time()
+        logging.info(f"Total processing time: {end_time - start_time:.2f} seconds.")
+        logging.info("Processing completed.")
 
 def profile_code():
-    # Your function call to process_batches
-    process_batches(batch_size=100000, save_interval=30)
+    process_batches(batch_size=10070, save_interval=1)
+
 profile_code()
-'''
 # Set up profiling
 pr = cProfile.Profile()
 pr.enable()
-profile_code()
+
 pr.disable()
 
 # Print profiling results
 ps = io.StringIO()
-ps = pstats.Stats(pr, stream=s).sort_stats(pstats.SortKey.CUMULATIVE)
+ps = pstats.Stats(pr, stream=ps).sort_stats(pstats.SortKey.CUMULATIVE)
 ps.print_stats()
-print(s.getvalue())'''
+print(ps.getvalue())
