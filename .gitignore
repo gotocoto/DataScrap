@@ -13,3 +13,4 @@ myenv/
 db_config.json
 *.log
 /anaylze/data
+data/word_pairs.csv
