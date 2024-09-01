@@ -8,7 +8,7 @@ import numpy as np
 import logging
 import time
 import matplotlib.pyplot as plt
-
+import mysql.connector
 # Load database credentials
 with open('db_config.json') as f:
     db_config = json.load(f)
@@ -141,62 +141,21 @@ def process_batches(batch_size=100000, save_interval=5):
                 word_pairs_list.append(sum(len(word_matrix[word1]) for word1 in word_matrix))
                 
                 batch_counter += 1
-                
+                #word_pairs = [(word1, word2, count) for word1 in word_matrix for word2, count in word_matrix[word1].items()]
                 if batch_counter >= save_interval:
                     # Save data to the database
                     try:
-                        # Step 1: Insert unique words into word_lookup table
-                        insert_word_query = text("""
-                            INSERT IGNORE INTO word_lookup (word)
-                            VALUES (:word);
-                        """)
-                        insert_word_data = [{'word': word} for word in word_matrix.keys()]
-                        connection.execute(insert_word_query, insert_word_data)
                         
-                        # Step 2: Save word pairs to temporary file for LOAD DATA INFILE
-                        temp_csv_path = "/var/lib/mysql-files/word_pairs.csv"
-                        with open(temp_csv_path, 'w') as f:
-                            for word1 in word_matrix:
-                                for word2, count in word_matrix[word1].items():
-                                    f.write(f'{word1},{word2},{count}\n')
-                        
-                        # Step 3: Load data from the file into a temporary table
-                        connection.execute(text("""
-                            CREATE TEMPORARY TABLE temp_word_pairs (
-                                word1 VARCHAR(40),
-                                word2 VARCHAR(40),
-                                count INT
-                            );
-                        """))
-                        connection.execute(text(f"""
-                            LOAD DATA INFILE '{temp_csv_path}'
-                            INTO TABLE temp_word_pairs
-                            FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
-                            (word1, word2, count);
-                        """))
-                        
-                        # Step 4: Insert or update in the main table
-                        upsert_query = text("""
-                            INSERT INTO word_matrix (id1, id2, count)
-                            SELECT
-                                w1.id AS id1,
-                                w2.id AS id2,
-                                t.count
-                            FROM
-                                temp_word_pairs t
-                            JOIN
-                                word_lookup w1 ON t.word1 = w1.word
-                            JOIN
-                                word_lookup w2 ON t.word2 = w2.word
+                        # Insert data into the temporary table
+                        insert_query = text("""
+                            INSERT INTO word_pairs (word1, word2, count)
+                            VALUES (:word1, :word2, :count)
                             ON DUPLICATE KEY UPDATE
-                                word_matrix.count = word_matrix.count + t.count;
+                                count = count + VALUES(count);
                         """)
-                        connection.execute(upsert_query)
-                        
-                        # Drop the temporary table
-                        connection.execute(text("DROP TEMPORARY TABLE temp_word_pairs;"))
-                        os.remove(temp_csv_path)
-                        
+                        insert_data = [{'word1': word1, 'word2': word2, 'count': count} for word1 in word_matrix for word2, count in word_matrix[word1].items()]
+                        connection.execute(insert_query, insert_data)
+                       
                         connection.commit()
 
                         # Save last seen ID
@@ -230,4 +189,4 @@ def process_batches(batch_size=100000, save_interval=5):
     finally:
         end_time = time.time()
         logging.info(f"Total processing time: {end_time - start_time:.2f} seconds.")
-process_batches(batch_size=10000, save_interval=1000)
+process_batches(batch_size=100000, save_interval=10)
