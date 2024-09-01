@@ -9,6 +9,7 @@ import logging
 import time
 import matplotlib.pyplot as plt
 import mysql.connector
+import csv
 # Load database credentials
 with open('db_config.json') as f:
     db_config = json.load(f)
@@ -24,21 +25,23 @@ def clean_comment(text):
     return clean_re.sub(' ', text).lower()
 
 # List of trivial words (stop words)
-stop_words = set([
-    'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your',
-    'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her',
-    'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs',
-    'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those',
-    'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
-    'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if',
-    'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with',
-    'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after',
-    'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over',
-    'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where',
-    'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other',
-    'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than',
-    'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now'
-])
+def load_stop_words(file_path):
+    stop_words = set()
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                word = line.strip().lower()
+                if word:
+                    stop_words.add(word)
+    except Exception as e:
+        logging.error(f"Error loading stop words from file: {e}")
+    return stop_words
+
+# Path to the stop words file
+stop_words_file_path = os.path.join(os.path.dirname(__file__), 'stop_words.txt')
+
+# Load stop words from the file into a set
+stop_words = load_stop_words(stop_words_file_path)
 
 def filter_stop_words(words):
     return [word for word in words if word not in stop_words and len(word) <= 40]
@@ -114,7 +117,7 @@ def process_batches(batch_size=100000, save_interval=5):
                 query = text("""
                     SELECT id, content
                     FROM comment
-                    WHERE id > :last_seen_id
+                    WHERE id > :last_seen_id AND content!='this post violated our policy'
                     ORDER BY id ASC
                     LIMIT :batch_size
                 """)
@@ -143,27 +146,65 @@ def process_batches(batch_size=100000, save_interval=5):
                 batch_counter += 1
                 #word_pairs = [(word1, word2, count) for word1 in word_matrix for word2, count in word_matrix[word1].items()]
                 if batch_counter >= save_interval:
-                    # Save data to the database
+                    # Prepare data for CSV
+                    insert_data = [{'word1': word1, 'word2': word2, 'count': count} for word1 in word_matrix for word2, count in word_matrix[word1].items()]
+                    
+                    # File path for the CSV
+                    csv_file_path = '/var/lib/mysql-files/word_pairs.csv'
+                    
+                    # Save data to CSV
+                    with open(csv_file_path, mode='w', newline='', encoding='utf-8') as file:
+                        writer = csv.writer(file)
+                        writer.writerow(['word1', 'word2', 'count'])  # Write header
+                        for row in insert_data:
+                            writer.writerow([row['word1'], row['word2'], row['count']])
+                    
+                    # Load data from CSV into the database
+                    # Define SQL queries
+                    create_temp_table_query = """
+                        CREATE TEMPORARY TABLE temp_word_pairs (
+                            word1 VARCHAR(255),
+                            word2 VARCHAR(255),
+                            count INT
+                        );
+                    """
+
+                    load_into_temp_query = f"""
+                        LOAD DATA INFILE '{csv_file_path}'
+                        INTO TABLE temp_word_pairs
+                        FIELDS TERMINATED BY ','
+                        LINES TERMINATED BY '\\n'
+                        IGNORE 1 LINES
+                        (word1, word2, count);
+                    """
+
+                    merge_data_query = """
+                        INSERT INTO word_pairs (word1, word2, count)
+                        SELECT word1, word2, SUM(count)
+                        FROM temp_word_pairs
+                        GROUP BY word1, word2
+                        ON DUPLICATE KEY UPDATE
+                            count = count + VALUES(count);
+                    """
+
+                    drop_temp_table_query = """
+                        DROP TEMPORARY TABLE temp_word_pairs;
+                    """
+
                     try:
-                        
-                        # Insert data into the temporary table
-                        insert_query = text("""
-                            INSERT INTO word_pairs (word1, word2, count)
-                            VALUES (:word1, :word2, :count)
-                            ON DUPLICATE KEY UPDATE
-                                count = count + VALUES(count);
-                        """)
-                        insert_data = [{'word1': word1, 'word2': word2, 'count': count} for word1 in word_matrix for word2, count in word_matrix[word1].items()]
-                        connection.execute(insert_query, insert_data)
-                       
-                        connection.commit()
-
-                        # Save last seen ID
-                        save_last_seen_id(last_seen_id, last_seen_id_file)
-
+                            connection.execute(text(create_temp_table_query))
+                            connection.execute(text(load_into_temp_query))
+                            connection.execute(text(merge_data_query))
+                            connection.execute(text(drop_temp_table_query))
+                            connection.commit()  
+                            logging.info(f"Inserted {len(insert_data)} pairs")
                     except Exception as e:
-                        logging.error(f"Error during database operation: {e}")
+                        print(f"An error occurred while loading data: {e}")
                         connection.rollback()  # Rollback on error
+                    
+                    save_last_seen_id(last_seen_id, last_seen_id_file)
+
+                
 
                     # Reset for the next batch
                     word_matrix.clear()
@@ -189,4 +230,4 @@ def process_batches(batch_size=100000, save_interval=5):
     finally:
         end_time = time.time()
         logging.info(f"Total processing time: {end_time - start_time:.2f} seconds.")
-process_batches(batch_size=100000, save_interval=10)
+process_batches(batch_size=1000, save_interval=4)
