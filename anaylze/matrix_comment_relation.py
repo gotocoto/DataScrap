@@ -39,7 +39,7 @@ def load_words(file_path):
 
 # Path to the stop words file
 stop_words_file_path = os.path.join(os.path.dirname(__file__), 'stop_words.txt')
-approved_words_file_path = os.path.join(os.path.dirname(__file__), 'stop_words.txt')
+approved_words_file_path = os.path.join(os.path.dirname(__file__), 'approved_words.txt')
 # Load stop words from the file into a set
 stop_words = load_words(stop_words_file_path)
 aproved_words = load_words(approved_words_file_path)
@@ -94,6 +94,7 @@ def save_plot(comments_processed, word_pairs, save_path='word_pairs_plot.png'):
     plt.savefig(save_path)
     plt.close()
 
+
 def process_batches(batch_size=100000, save_interval=5):
     last_seen_id_file = 'last_seen_id.json'  # File to store the last seen ID
     last_seen_id = load_last_seen_id(last_seen_id_file)
@@ -123,29 +124,27 @@ def process_batches(batch_size=100000, save_interval=5):
                 """)
                 batch = connection.execute(query, {'last_seen_id': last_seen_id, 'batch_size': batch_size}).fetchall()
 
-                if not batch:
-                    break  # No more comments to process
-                
-                last_seen_id = batch[-1][0]  # Update last_seen_id for the next batch
-                
-                # Processing comments
-                for row in batch:
-                    comment = clean_comment(row[1])
-                    words = comment.split()
-                    filtered_words = filter_stop_words(words)
-                    unique_words = set(filtered_words)
+                if batch:
+                    last_seen_id = batch[-1][0]  # Update last_seen_id for the next batch
                     
-                    for word1 in unique_words:
-                        for word2 in unique_words:
-                            word_matrix[word1][word2] += 1
-                
-                total_processed += len(batch)
-                comments_processed.append(total_processed)
-                word_pairs_list.append(sum(len(word_matrix[word1]) for word1 in word_matrix))
-                
-                batch_counter += 1
-                #word_pairs = [(word1, word2, count) for word1 in word_matrix for word2, count in word_matrix[word1].items()]
-                if batch_counter >= save_interval:
+                    # Processing comments
+                    for row in batch:
+                        comment = clean_comment(row[1])
+                        words = comment.split()
+                        filtered_words = filter_stop_words(words)
+                        unique_words = set(filtered_words)
+                        
+                        for word1 in unique_words:
+                            for word2 in unique_words:
+                                word_matrix[word1][word2] += 1
+                    
+                    total_processed += len(batch)
+                    comments_processed.append(total_processed)
+                    word_pairs_list.append(sum(len(word_matrix[word1]) for word1 in word_matrix))
+                    
+                    batch_counter += 1
+                    #word_pairs = [(word1, word2, count) for word1 in word_matrix for word2, count in word_matrix[word1].items()]
+                if not batch:
                     # Prepare data for CSV
                     insert_data = [{'word1': word1, 'word2': word2, 'count': count} for word1 in word_matrix for word2, count in word_matrix[word1].items()]
                     
@@ -163,8 +162,8 @@ def process_batches(batch_size=100000, save_interval=5):
                     # Define SQL queries
                     create_temp_table_query = """
                         CREATE TEMPORARY TABLE temp_word_pairs (
-                            word1 VARCHAR(255),
-                            word2 VARCHAR(255),
+                            word1 VARCHAR(20),
+                            word2 VARCHAR(20),
                             count INT
                         );
                     """
@@ -180,9 +179,8 @@ def process_batches(batch_size=100000, save_interval=5):
 
                     merge_data_query = """
                         INSERT INTO word_pairs (word1, word2, count)
-                        SELECT word1, word2, SUM(count)
+                        SELECT word1, word2, count
                         FROM temp_word_pairs
-                        GROUP BY word1, word2
                         ON DUPLICATE KEY UPDATE
                             count = count + VALUES(count);
                     """
@@ -212,6 +210,7 @@ def process_batches(batch_size=100000, save_interval=5):
 
                     # Save plot
                     save_plot(comments_processed, word_pairs_list)
+                    break
                     
                 batch_end_time = time.time()
                 logging.info(f"Processed {total_processed} comments so far.")
@@ -230,4 +229,5 @@ def process_batches(batch_size=100000, save_interval=5):
     finally:
         end_time = time.time()
         logging.info(f"Total processing time: {end_time - start_time:.2f} seconds.")
-process_batches(batch_size=100000, save_interval=10)
+        save_plot(comments_processed, word_pairs_list)
+process_batches(batch_size=100000, save_interval=20)
